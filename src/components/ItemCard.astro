@@ -10,6 +10,7 @@ const href = `/equipment/${item.category}/${item.slug}`;
     <Icon name={icon} class="w-14 h-14" />
     <span class="tag">{catName(item.category)}</span>
     <span class="soon">Photo coming soon</span>
+    <span class="booked-pill" data-avail-slot data-slug={item.slug} hidden></span>
   </a>
   <div class="body">
     <h3><a href={href}>{item.name}</a></h3>
@@ -26,6 +27,7 @@ const href = `/equipment/${item.category}/${item.slug}`;
   .item-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
   .thumb { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; aspect-ratio: 4/3; background: var(--color-wr-mid); color: #a9afa9; text-decoration: none; }
   .tag { position: absolute; top: 0; left: 0; background: var(--color-wr-yellow); color: #121212; font-family: var(--font-heading); font-weight: 600; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; padding: .25rem .6rem; }
+  .booked-pill { position: absolute; left: 0; bottom: 0; background: #121212; color: #fff; font-family: var(--font-heading); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; padding: .3rem .7rem; }
   .soon { font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; }
   .body { padding: 1.1rem 1.1rem 1.25rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }
   h3 { font-size: 1.2rem; text-transform: uppercase; letter-spacing: .04em; line-height: 1.1; }

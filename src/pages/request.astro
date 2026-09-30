@@ -16,7 +16,7 @@ import { site, featuredCities } from '../data/site';
           <a href="/equipment" class="btn-outline" style="margin-top: 1.5rem;">Back to Equipment</a>
         </div>
 
-        <form id="form" novalidate>
+        <form id="form" novalidate data-key={site.web3formsKey} data-site={site.name}>
           <h2 class="form-title">Tell us what you need</h2>
 
           <div class="block">
@@ -42,6 +42,7 @@ import { site, featuredCities } from '../data/site';
           </div>
           <p id="duration" class="duration"></p>
           <p id="date-error" class="hidden err"></p>
+          <div id="avail-warn" class="hidden warn" role="alert"></div>
 
           <div class="block">
             <span class="label">Delivery or pickup *</span>
@@ -115,6 +116,8 @@ import { site, featuredCities } from '../data/site';
   .hint a, .fine a, .info a.more { color: #8A5D00; text-decoration: underline; }
   .duration { color: #8A5D00; font-weight: 600; min-height: 1.2rem; margin: -.5rem 0 1rem; font-size: .9rem; }
   .err { color: #b3261e; font-size: .9rem; margin-bottom: 1rem; }
+  .warn { background: #FFF4E5; border: 1px solid #E8A33D; border-left: 4px solid #E8A33D; padding: .9rem 1.1rem; margin-bottom: 1.25rem; font-size: .92rem; color: #4a3200; }
+  .warn ul { margin: .5rem 0 0 1.1rem; list-style: disc; display: grid; gap: .3rem; }
   .opt { display: flex; gap: .75rem; align-items: flex-start; padding: .9rem 1rem; background: #fff; border: 1px solid var(--color-wr-border); cursor: pointer; }
   .opt:has(input:checked) { border-color: var(--color-wr-yellow); box-shadow: inset 0 0 0 1px var(--color-wr-yellow); background: #FFFBEF; }
   .opt input { accent-color: #121212; margin-top: .3rem; }
@@ -137,8 +140,8 @@ import { site, featuredCities } from '../data/site';
   @media (max-width: 560px) { #form .two { grid-template-columns: 1fr; } }
 </style>
 
-<script define:vars={{ key: site.web3formsKey, siteName: site.name }}>
-  // define:vars inlines the values, so this script is plain JS (no imports).
+<script>
+  import { loadAvailability, conflicts, nextFree, fmtRange, fmt, daysBetween } from '../lib/availability';
   const KEY = 'wr-request-list';
   const $ = (id) => document.getElementById(id);
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
@@ -146,6 +149,8 @@ import { site, featuredCities } from '../data/site';
 
   const form = $('form'), success = $('success'), itemsEl = $('items'), picker = $('picker');
   const start = $('start'), end = $('end');
+  const key = form.dataset.key, siteName = form.dataset.site;
+  let avail = { ok: false, bookings: {} };
   const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   start.min = end.min = iso(new Date());
 
@@ -171,7 +176,7 @@ import { site, featuredCities } from '../data/site';
         if (act === 'inc') l[i].qty += 1;
         if (act === 'dec') l[i].qty = Math.max(1, l[i].qty - 1);
         if (act === 'rm') l.splice(i, 1);
-        write(l); render();
+        write(l); render(); checkConflicts();
       });
       itemsEl.appendChild(li);
     });
@@ -182,8 +187,24 @@ import { site, featuredCities } from '../data/site';
     const name = picker.options[picker.selectedIndex].text;
     const l = read(); const hit = l.find((e) => e.slug === picker.value);
     if (hit) hit.qty += 1; else l.push({ slug: picker.value, name, qty: 1 });
-    write(l); picker.value = ''; render();
+    write(l); picker.value = ''; render(); checkConflicts();
   });
+
+  // Equipment already booked for the chosen dates (from Aaron's calendar). Returns true if there are none.
+  const checkConflicts = () => {
+    const box = $('avail-warn'); box.classList.add('hidden'); box.innerHTML = '';
+    if (!avail.ok || !start.value || !end.value || end.value < start.value) return true;
+    const len = daysBetween(start.value, end.value) + 1;
+    const lines = read().map((e) => {
+      const c = conflicts(avail, e.slug, start.value, end.value);
+      if (!c.length) return null;
+      return `<li><strong></strong> is booked ${c.map(fmtRange).join(', ')}. Next open for your ${len} day${len === 1 ? '' : 's'}: <strong>${fmt(nextFree(avail, e.slug, start.value, len))}</strong>.</li>`.replace('<strong></strong>', '<strong>' + e.name.replace(/[<>&]/g, '') + '</strong>');
+    }).filter(Boolean);
+    if (!lines.length) return true;
+    box.innerHTML = '<p><strong>Some equipment is already booked for those dates.</strong> Please pick different dates or remove it from your list.</p><ul>' + lines.join('') + '</ul>';
+    box.classList.remove('hidden');
+    return false;
+  };
 
   const dateCheck = () => {
     const err = $('date-error'), dur = $('duration');
@@ -194,7 +215,7 @@ import { site, featuredCities } from '../data/site';
       if (days < 1) { err.textContent = 'Return date must be on or after the start date.'; err.classList.remove('hidden'); return false; }
       dur.textContent = `${days} rental day${days === 1 ? '' : 's'}`;
     }
-    return true;
+    return checkConflicts() || true;
   };
   start.addEventListener('change', () => { if (end.value && end.value < start.value) end.value = start.value; dateCheck(); });
   end.addEventListener('change', dateCheck);
@@ -211,6 +232,7 @@ import { site, featuredCities } from '../data/site';
     const method = document.querySelector('input[name="method"]:checked').value;
     if (!list.length) return fail('Please add at least one piece of equipment.');
     if (!start.value || !end.value || !dateCheck()) return fail('Please choose valid start and return dates.');
+    if (!checkConflicts()) return fail('Some equipment is booked for those dates. Please adjust your dates or list.');
     if (method === 'Delivery' && !$('address').value.trim()) return fail('Please enter the job site address for delivery.');
     if (!$('name').value.trim() || !$('phone').value.trim() || !$('email').value || !$('email').validity.valid) return fail('Please add your name, phone and a valid email.');
 
@@ -247,4 +269,5 @@ import { site, featuredCities } from '../data/site';
   });
 
   render();
+  loadAvailability().then((a) => { avail = a; checkConflicts(); });
 </script>

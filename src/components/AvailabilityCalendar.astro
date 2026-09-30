@@ -1,0 +1,100 @@
+---
+const { slug, name } = Astro.props as { slug: string; name: string };
+---
+<div class="avail card" data-avail-cal data-slug={slug} hidden>
+  <div class="head">
+    <h2 class="h2" style="font-size: 1.6rem;">Availability</h2>
+    <div class="nav">
+      <button type="button" data-prev aria-label="Previous month">&lsaquo;</button>
+      <button type="button" data-next aria-label="Next month">&rsaquo;</button>
+    </div>
+  </div>
+  <div class="months" data-months></div>
+  <p class="legend"><span class="sw open"></span>Open <span class="sw booked"></span>Booked <span class="note">Dates are confirmed by our team when you request.</span></p>
+  <p class="status" data-status></p>
+</div>
+
+<style>
+  .avail { padding: 1.75rem; }
+  .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .nav { display: flex; gap: .4rem; }
+  .nav button { width: 2.2rem; height: 2.2rem; border: 1px solid var(--color-wr-border); background: #fff; font-size: 1.4rem; line-height: 1; }
+  .nav button:hover:not(:disabled) { border-color: #121212; }
+  .nav button:disabled { opacity: .35; cursor: default; }
+  .months { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .legend { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin-top: 1.25rem; font-size: .8rem; color: var(--color-wr-muted); }
+  .sw { display: inline-block; width: .9rem; height: .9rem; margin-right: -.4rem; border: 1px solid var(--color-wr-border); }
+  .sw.open { background: #fff; }
+  .sw.booked { background: #d9d9d4; }
+  .note { flex-basis: 100%; }
+  .status { margin-top: .75rem; font-weight: 600; color: #8A5D00; min-height: 1.2rem; }
+  @media (max-width: 700px) { .months { grid-template-columns: 1fr; } }
+</style>
+
+<style is:global>
+  .cal h3 { font-family: var(--font-heading); text-transform: uppercase; letter-spacing: .05em; font-size: 1.1rem; text-align: center; margin-bottom: .5rem; }
+  .cal .grid7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal .dow { font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: var(--color-wr-muted); text-align: center; padding: .25rem 0; }
+  .cal .day { aspect-ratio: 1; display: grid; place-items: center; font-size: .85rem; background: #fff; border: 1px solid var(--color-wr-border); }
+  .cal .day.booked { background: #d9d9d4; color: #777; text-decoration: line-through; border-color: #d9d9d4; }
+  .cal .day.past { background: transparent; border-color: transparent; color: #b5b9b5; }
+  .cal .day.today { outline: 2px solid var(--color-wr-yellow); outline-offset: -2px; font-weight: 700; }
+  .cal .day.blank { background: transparent; border-color: transparent; }
+</style>
+
+<script>
+  import { loadAvailability, isBooked, todayKey, fmt, bookedUntil, addDays } from '../lib/availability';
+
+  const root = document.querySelector<HTMLElement>('[data-avail-cal]');
+  if (root) {
+    const slug = root.dataset.slug!;
+    const monthsEl = root.querySelector<HTMLElement>('[data-months]')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const today = todayKey();
+    const [ty, tm] = today.split('-').map(Number);
+    let offset = 0; // months from the current month
+
+    loadAvailability().then((avail) => {
+      if (!avail.ok) return; // not configured or feed down: keep the calendar hidden
+      root.hidden = false;
+      const until = bookedUntil(avail, slug);
+      status.textContent = until ? `Currently booked. Next open day: ${fmt(addDays(until, 1))}.` : 'Available now.';
+
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const month = (y: number, m: number) => {
+        const first = new Date(Date.UTC(y, m - 1, 1));
+        const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+        const wrap = document.createElement('div');
+        wrap.className = 'cal';
+        wrap.innerHTML = `<h3>${first.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })}</h3><div class="grid7"></div>`;
+        const g = wrap.querySelector('.grid7')!;
+        ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach((d) => g.insertAdjacentHTML('beforeend', `<div class="dow">${d}</div>`));
+        for (let i = 0; i < first.getUTCDay(); i++) g.insertAdjacentHTML('beforeend', '<div class="day blank"></div>');
+        for (let d = 1; d <= days; d++) {
+          const key = `${y}-${pad(m)}-${pad(d)}`;
+          const cls = ['day'];
+          if (key < today) cls.push('past');
+          else if (isBooked(avail, slug, key)) cls.push('booked');
+          if (key === today) cls.push('today');
+          g.insertAdjacentHTML('beforeend', `<div class="${cls.join(' ')}" ${cls.includes('booked') ? 'title="Booked"' : ''}>${d}</div>`);
+        }
+        return wrap;
+      };
+
+      const render = () => {
+        monthsEl.innerHTML = '';
+        for (let i = 0; i < 2; i++) {
+          const idx = tm - 1 + offset + i;
+          monthsEl.appendChild(month(ty + Math.floor(idx / 12), (idx % 12) + 1));
+        }
+        prev.disabled = offset === 0;
+        next.disabled = offset >= 10;
+      };
+      prev.addEventListener('click', () => { offset = Math.max(0, offset - 1); render(); });
+      next.addEventListener('click', () => { offset = Math.min(10, offset + 1); render(); });
+      render();
+    });
+  }
+</script>

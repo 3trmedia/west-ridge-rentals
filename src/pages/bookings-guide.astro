@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
+import { categories, items } from '../data/equipment';
+---
+<Layout title="Bookings Guide | West Ridge Rentals" description="Internal guide: how to block equipment on the website using the bookings calendar." noindex>
+  <PageHero eyebrow="Internal" title="Bookings guide" intro="How to mark equipment as booked so customers can't request it for those dates. Not linked anywhere on the site." />
+
+  <section class="section section-gray">
+    <div class="container prose">
+      <h2>When a rental is paid</h2>
+      <ol class="steps">
+        <li>Open the <strong>West Ridge Bookings</strong> calendar in Google Calendar (phone or computer).</li>
+        <li>Create an <strong>all-day</strong> event that spans the rental, from the first day to the last day the equipment is out.</li>
+        <li>Make the <strong>title</strong> the equipment name from the list below. Add the customer's name and notes in the event <strong>description</strong> (the website never shows it).</li>
+        <li>Save. Within a few minutes the dates show as booked on the website and customers can't request them.</li>
+      </ol>
+
+      <h2>Changes</h2>
+      <p><strong>Rental cancelled or ended early:</strong> delete the event or shorten it. <strong>Dates changed:</strong> drag the event or edit its dates. The website follows the calendar.</p>
+
+      <h2>Equipment names to use in the title</h2>
+      <p>Type the name exactly as shown. Matching ignores capital letters and punctuation. Anything that doesn't match is ignored, so a typo means nothing gets blocked.</p>
+      {categories.map((c) => (
+        <div class="block">
+          <h3>{c.name}</h3>
+          <table>
+            <thead><tr><th>Type this as the title</th><th>Equipment</th></tr></thead>
+            <tbody>{items.filter((i) => i.category === c.slug).map((i) => <tr><td><code>{i.book}</code></td><td>{i.name}</td></tr>)}</tbody>
+          </table>
+        </div>
+      ))}
+
+      <h2>Good to know</h2>
+      <ul class="tips">
+        <li>One event per piece of equipment. If a customer rents two items, make two events.</li>
+        <li>You can write extra words in the title, like "Skid Steer - Smith Excavating". It still matches.</li>
+        <li>A payment happens outside the website. Only add an event once you have confirmed and collected payment.</li>
+        <li>If the calendar can't be reached, the website just stops showing availability. Requests still work and you confirm by hand.</li>
+      </ul>
+    </div>
+  </section>
+</Layout>
+
+<style is:global>
+  .prose .steps { padding-left: 1.3rem; display: grid; gap: .6rem; color: #333; line-height: 1.6; margin-bottom: .5rem; }
+  .prose .tips { padding-left: 1.3rem; list-style: disc; display: grid; gap: .6rem; color: #333; line-height: 1.6; }
+  .prose h3 { font-size: 1.15rem; text-transform: uppercase; letter-spacing: .05em; margin: 1.5rem 0 .5rem; }
+  .prose table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--color-wr-border); }
+  .prose th, .prose td { text-align: left; padding: .6rem .9rem; border-bottom: 1px solid var(--color-wr-border); font-size: .95rem; }
+  .prose th { font-family: var(--font-heading); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--color-wr-muted); background: var(--color-wr-mid); }
+  .prose code { background: #FFF6D6; padding: .15rem .45rem; font-weight: 600; }
+  .prose ol { list-style: decimal; }
+</style>

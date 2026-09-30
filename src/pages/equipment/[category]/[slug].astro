@@ -2,6 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
 import ItemCard from '../../../components/ItemCard.astro';
+import AvailabilityCalendar from '../../../components/AvailabilityCalendar.astro';
 import { categories, catName, items } from '../../../data/equipment';
 import { site } from '../../../data/site';
 
@@ -40,6 +41,7 @@ const related = items.filter((i) => i.category === item.category && i.slug !== i
   </section>
 
   <section class="section section-gray">
+    <div class="container" style="margin-bottom: 1.5rem;"><AvailabilityCalendar slug={item.slug} name={item.name} /></div>
     <div class="container specs">
       <div class="card" style="padding: 1.75rem;">
         <h2 class="h2" style="font-size: 1.6rem; margin-bottom: 1rem;">Specs</h2>

@@ -42,6 +42,7 @@ const schema = {
     <script>
       // Shared "Add to request" behavior for every button marked [data-add].
       import { addToList, getList } from '../lib/request-list';
+      import { loadAvailability, bookedUntil, fmt } from '../lib/availability';
       const mark = (btn: HTMLElement) => {
         const label = btn.querySelector('[data-add-label]');
         if (label) label.textContent = 'Added ✓';
@@ -56,6 +57,16 @@ const schema = {
         addToList(btn.dataset.slug!, btn.dataset.name!);
         mark(btn);
       });
+      // Tag cards for equipment that is booked today (silently skipped if availability is not configured).
+      const slots = document.querySelectorAll<HTMLElement>('[data-avail-slot]');
+      if (slots.length) loadAvailability().then((a) => {
+        if (!a.ok) return;
+        slots.forEach((el) => {
+          const until = bookedUntil(a, el.dataset.slug!);
+          if (until) { el.textContent = `Booked until ${fmt(until)}`; el.hidden = false; }
+        });
+      });
+
       const inList = new Set(getList().map((e) => e.slug));
       document.querySelectorAll<HTMLElement>('[data-add]').forEach((btn) => {
         if (inList.has(btn.dataset.slug!)) {
