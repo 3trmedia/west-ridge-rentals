@@ -5,10 +5,18 @@ import ItemCard from '../../components/ItemCard.astro';
 import { categories, items } from '../../data/equipment';
 ---
 <Layout title="Equipment Rentals | West Ridge Rentals" description="Browse dump trucks, excavators, skid steers, landscaping and compaction equipment available to rent across Utah.">
-  <PageHero eyebrow="Our fleet" title="Equipment for rent" intro="Add anything you need to your request list. No payment now. We confirm availability and pricing with you first." primary={['Request a Rental', '/request']} />
+  <PageHero eyebrow="Our fleet" title="Equipment for rent" intro="Enter your dates to see what's open and what it will cost. Add anything you need to your request list. No payment now." primary={['Request a Rental', '/request']} />
 
   <section class="section section-gray">
     <div class="container">
+      <div class="datebar card" id="datebar">
+        <div class="dfield"><label class="label" for="d-start">Start date</label><input class="field" type="date" id="d-start" /></div>
+        <div class="dfield"><label class="label" for="d-end">Return date</label><input class="field" type="date" id="d-end" /></div>
+        <label class="only"><input type="checkbox" id="only-avail" /> Only show available</label>
+        <button type="button" class="clear" id="d-clear" hidden>Clear dates</button>
+        <p class="dnote" id="d-note">Set your dates to see estimated prices and availability.</p>
+      </div>
+
       <div class="tabs" role="group" aria-label="Filter by category">
         <button class="tab" data-filter="all">All</button>
         {categories.map((c) => <button class="tab" data-filter={c.slug}>{c.name}</button>)}
@@ -18,39 +26,102 @@ import { categories, items } from '../../data/equipment';
       <div class="grid" id="grid">
         {items.map((i) => <ItemCard item={i} />)}
       </div>
-      <p id="empty" class="hidden lead" style="text-align: center; padding: 3rem 0;">Nothing matches that search. <a href="/contact" style="color: #8A5D00; text-decoration: underline;">Ask us</a>, we may be able to source it.</p>
+      <p id="empty" class="hidden lead" style="text-align: center; padding: 3rem 0;">Nothing matches. <a href="/contact" style="color: #8A5D00; text-decoration: underline;">Ask us</a>, we may be able to source it.</p>
     </div>
   </section>
 </Layout>
 
 <style>
+  .datebar { display: flex; flex-wrap: wrap; gap: 1rem 1.25rem; align-items: flex-end; padding: 1.25rem 1.5rem; margin-bottom: 1.75rem; border-left: 4px solid var(--color-wr-yellow); }
+  .dfield { min-width: 11rem; }
+  .only { display: flex; gap: .5rem; align-items: center; font-size: .9rem; padding-bottom: .8rem; cursor: pointer; }
+  .only input { accent-color: #121212; }
+  .clear { font-size: .85rem; color: var(--color-wr-muted); text-decoration: underline; padding-bottom: .8rem; }
+  .dnote { flex-basis: 100%; font-size: .85rem; color: var(--color-wr-muted); margin: 0; }
+  .dnote.on { color: #8A5D00; font-weight: 600; }
   .tabs { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 2rem; }
   .tab { font-family: var(--font-heading); letter-spacing: .08em; text-transform: uppercase; font-size: .9rem; padding: .55rem 1.1rem; border: 1px solid var(--color-wr-border); background: #fff; color: #333; transition: all .15s; }
   .tab:hover { border-color: #121212; }
   .tab[aria-pressed="true"] { background: #121212; color: #fff; border-color: #121212; }
   .search { max-width: 16rem; margin-left: auto; padding: .55rem .9rem; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
-  @media (max-width: 640px) { .search { max-width: none; margin-left: 0; flex-basis: 100%; } }
+  @media (max-width: 640px) { .search { max-width: none; margin-left: 0; flex-basis: 100%; } .dfield { flex: 1; min-width: 8rem; } }
 </style>
 
 <script>
+  import { loadAvailability, conflicts, nextFree, fmt, daysBetween, todayKey } from '../../lib/availability';
+  import type { Availability } from '../../lib/availability';
+  import { estimate, money } from '../../lib/pricing';
+  import { getDates, setDates } from '../../lib/dates';
+
   const tabs = document.querySelectorAll<HTMLElement>('[data-filter]');
   const cards = document.querySelectorAll<HTMLElement>('[data-item-card]');
   const search = document.getElementById('search') as HTMLInputElement;
   const empty = document.getElementById('empty')!;
+  const dStart = document.getElementById('d-start') as HTMLInputElement;
+  const dEnd = document.getElementById('d-end') as HTMLInputElement;
+  const only = document.getElementById('only-avail') as HTMLInputElement;
+  const note = document.getElementById('d-note')!;
+  const clear = document.getElementById('d-clear') as HTMLButtonElement;
   let cat = new URLSearchParams(location.search).get('category') || 'all';
+  let avail: Availability = { ok: false, bookings: {} };
+
+  dStart.min = dEnd.min = todayKey();
+  const saved = getDates();
+  if (saved) { dStart.value = saved.start; dEnd.value = saved.end; }
+
+  const dates = () => (dStart.value && dEnd.value && dEnd.value >= dStart.value ? { start: dStart.value, end: dEnd.value } : null);
+
   const apply = () => {
     const q = search.value.trim().toLowerCase();
+    const d = dates();
+    const len = d ? daysBetween(d.start, d.end) + 1 : 0;
     let shown = 0;
     cards.forEach((c) => {
-      const ok = (cat === 'all' || c.dataset.category === cat) && (!q || c.dataset.name!.includes(q));
+      const slug = c.dataset.slug!;
+      const estEl = c.querySelector<HTMLElement>('[data-est]')!;
+      let blocked = false;
+      if (d) {
+        const r = c.dataset.rates!.split(',').map(Number) as [number, number, number];
+        const conf = avail.ok ? conflicts(avail, slug, d.start, d.end) : [];
+        blocked = conf.length > 0;
+        estEl.hidden = false;
+        estEl.classList.toggle('bad', blocked);
+        estEl.textContent = blocked
+          ? `Booked for your dates. Next open: ${fmt(nextFree(avail, slug, d.start, len))}`
+          : `Est. ${money(estimate(r, len))} for ${len} day${len === 1 ? '' : 's'}${avail.ok ? ' · Available' : ''}`;
+      } else {
+        estEl.hidden = true;
+      }
+      c.classList.toggle('unavail', blocked);
+      const ok = (cat === 'all' || c.dataset.category === cat) && (!q || c.dataset.name!.includes(q)) && !(only.checked && blocked);
       c.classList.toggle('hidden', !ok);
       if (ok) shown++;
     });
     tabs.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === cat)));
     empty.classList.toggle('hidden', shown > 0);
+    clear.hidden = !(dStart.value || dEnd.value);
+    note.classList.toggle('on', !!d);
+    note.textContent = d
+      ? `Showing prices for ${len} day${len === 1 ? '' : 's'} (${fmt(d.start)} to ${fmt(d.end)}). Your dates carry over to the request form.`
+      : 'Set your dates to see estimated prices and availability.';
   };
+
+  const onDates = () => {
+    if (dStart.value && dEnd.value && dEnd.value < dStart.value) dEnd.value = dStart.value;
+    if (dStart.value) dEnd.min = dStart.value;
+    const d = dates();
+    if (d) setDates(d);
+    else if (!dStart.value && !dEnd.value) setDates(null);
+    apply();
+  };
+  dStart.addEventListener('change', onDates);
+  dEnd.addEventListener('change', onDates);
+  only.addEventListener('change', apply);
+  clear.addEventListener('click', () => { dStart.value = dEnd.value = ''; only.checked = false; setDates(null); apply(); });
   tabs.forEach((b) => b.addEventListener('click', () => { cat = b.dataset.filter!; apply(); }));
   search.addEventListener('input', apply);
+
   apply();
+  loadAvailability().then((a) => { avail = a; apply(); });
 </script>

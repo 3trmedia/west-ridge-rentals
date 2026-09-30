@@ -4,6 +4,7 @@ export type Category = {
   kicker: string; h1: string; intro: string;
   whyTitle: string; whyBody: string[]; checklist: string[]; badge: [string, string];
   faqs: [string, string][];
+  uses: string[];
 };
 export type Item = {
   slug: string; book: string; name: string; category: string; blurb: string;
@@ -14,6 +15,7 @@ export type Item = {
 export const categories: Category[] = [
   { slug: 'trucks', name: 'Trucks & Hauling', icon: 'truck',
     blurb: 'Dump trucks, flatbeds and trailers to move material and machines.',
+    uses: ["Hauling gravel, soil and debris","Moving equipment between job sites","Delivering materials to the site","Demo and cleanup jobs"],
     kicker: 'Dump trucks & trailers for rent in Utah', h1: 'Trucks & hauling. Ready when you are.',
     intro: 'Dump trucks, flatbeds and equipment trailers for contractors and businesses. Tell us the dates and we confirm availability fast.',
     whyTitle: 'Move more, wait less',
@@ -23,6 +25,7 @@ export const categories: Category[] = [
     faqs: [['Do I need a CDL?', 'Some larger trucks require one. We’ll tell you when you request.'], ['Can you deliver a trailer?', 'Yes. Delivery is quoted by distance.'], ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement. A deposit may apply.'], ['How fast can I get one?', 'Often within a day or two. Send a request and we’ll confirm.'], ['Can I rent for a single day?', 'Yes. Daily, weekly and monthly options are available.'], ['Do you service my area?', 'We serve the Wasatch Front and beyond. See our Service Areas page or call us.']] },
   { slug: 'excavation', name: 'Excavation', icon: 'excavator',
     blurb: 'Excavators, backhoes and skid steers for digging and grading.',
+    uses: ["Trenching for utilities","Foundation and footing digging","Grading and site prep","Loading and moving material"],
     kicker: 'Excavators & skid steers for rent in Utah', h1: 'Dig it. Grade it. Done.',
     intro: 'Mini excavators, full-size excavators, backhoes and skid steers for trenching, grading, loading and site prep.',
     whyTitle: 'The right machine for the job',
@@ -32,6 +35,7 @@ export const categories: Category[] = [
     faqs: [['Do you rent operators?', 'Let us know in your request notes and we’ll tell you what is possible.'], ['Are attachments included?', 'A standard bucket is included. Other attachments are available.'], ['How is delivery handled?', 'We haul it on a trailer to your job site and pick it up when you are done.'], ['What size excavator do I need?', 'Describe the job and we’ll recommend one.'], ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement.'], ['Can I rent by the week?', 'Yes. Daily, weekly and monthly rates are available.']] },
   { slug: 'landscaping', name: 'Landscaping', icon: 'leaf',
     blurb: 'Compact equipment for yards, lots and site cleanup.',
+    uses: ["Sprinkler and drip-line trenches","Stump removal","Yard grading and cleanup","Clearing lots and fence lines"],
     kicker: 'Landscaping equipment for rent in Utah', h1: 'Landscaping gear that gets it done.',
     intro: 'Compact track loaders, stump grinders and trenchers for yards, lots and small commercial sites.',
     whyTitle: 'Built for finished yards',
@@ -41,6 +45,7 @@ export const categories: Category[] = [
     faqs: [['Will it damage my lawn?', 'Rubber-track machines are much gentler on turf than wheels.'], ['Can I pick it up myself?', 'Smaller equipment is pickup-friendly. Ask about trailers.'], ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement.'], ['Is training provided?', 'We do a quick walk-around at handoff.'], ['Can I rent for a weekend?', 'Yes, weekend and daily rentals are available.'], ['Do you service my area?', 'See our Service Areas page or call us.']] },
   { slug: 'compaction', name: 'Compaction & Concrete', icon: 'roller',
     blurb: 'Rollers, plate compactors and finishing tools.',
+    uses: ["Compacting base and gravel","Setting pavers and patios","Trench backfill","Asphalt and driveway finishing"],
     kicker: 'Compaction equipment for rent in Utah', h1: 'A solid base starts here.',
     intro: 'Smooth drum rollers and plate compactors for base, gravel, pavers and asphalt.',
     whyTitle: 'Get the finish right',
@@ -91,3 +96,19 @@ export const icons: Record<string, string> = {
 
 // Short name Aaron types as the calendar event title to block an item (see /bookings-guide).
 export const bookingKeys = (i: Item) => [i.book, i.name, i.slug];
+
+// Suggested add-ons shown as "Often rented together" (first two that exist).
+export const pairs: Record<string, string[]> = {
+  'dump-truck-10yd': ['skid-steer', 'mini-excavator-35'],
+  'flatbed-trailer-20': ['mini-excavator-35', 'skid-steer'],
+  'flatbed-truck': ['flatbed-trailer-20', 'skid-steer'],
+  'mini-excavator-35': ['flatbed-trailer-20', 'dump-truck-10yd'],
+  'excavator-20t': ['dump-truck-10yd', 'smooth-drum-roller'],
+  'skid-steer': ['flatbed-trailer-20', 'dump-truck-10yd'],
+  'backhoe-loader': ['dump-truck-10yd', 'plate-compactor'],
+  'compact-track-loader': ['flatbed-trailer-20', 'stump-grinder'],
+  'stump-grinder': ['compact-track-loader', 'flatbed-trailer-20'],
+  'trencher': ['plate-compactor', 'skid-steer'],
+  'smooth-drum-roller': ['dump-truck-10yd', 'skid-steer'],
+  'plate-compactor': ['trencher', 'mini-excavator-35'],
+};

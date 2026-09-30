@@ -14,6 +14,8 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
         <div id="success" class="hidden success">
           <p class="big">Request sent</p>
           <p>Thanks, we've got it. {site.manager} will reach out shortly to confirm. Need it sooner? Call <a href={site.phoneHref}>{site.phone}</a>.</p>
+          <p class="sum-title">Here's what you sent</p>
+          <pre id="sent-summary" class="sum"></pre>
           <a href="/equipment" class="btn-outline" style="margin-top: 1.5rem;">Back to Equipment</a>
         </div>
 
@@ -40,6 +42,10 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
           <div class="two">
             <div><label class="label" for="start">Start date *</label><input class="field" type="date" id="start" required /></div>
             <div><label class="label" for="end">Return date *</label><input class="field" type="date" id="end" required /></div>
+          </div>
+          <div class="lens" id="lens" aria-label="Quick rental length">
+            <span>Quick pick:</span>
+            <button type="button" data-len="1">1 day</button><button type="button" data-len="3">3 days</button><button type="button" data-len="7">1 week</button><button type="button" data-len="14">2 weeks</button><button type="button" data-len="30">1 month</button>
           </div>
           <p id="duration" class="duration"></p>
           <p id="date-error" class="hidden err"></p>
@@ -144,6 +150,11 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
   .guarantee { background: #E4E2D6; border: 1px solid #CFCCB9; padding: 1.25rem 1.5rem; }
   .guarantee strong { display: block; font-family: var(--font-heading); text-transform: uppercase; letter-spacing: .03em; }
   .guarantee span { font-size: .9rem; color: var(--color-wr-muted); }
+  .lens { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: -.25rem 0 1rem; font-size: .85rem; color: var(--color-wr-muted); }
+  .lens button { font-family: var(--font-heading); letter-spacing: .06em; text-transform: uppercase; font-size: .8rem; padding: .3rem .75rem; border: 1px solid var(--color-wr-border); background: #fff; }
+  .lens button:hover { border-color: #121212; }
+  .sum-title { font-family: var(--font-heading); font-size: .8rem; letter-spacing: .15em; text-transform: uppercase; color: #8A5D00; margin-top: 1.5rem; }
+  .sum { white-space: pre-wrap; font-family: var(--font-body); font-size: .9rem; background: var(--color-wr-mid); border: 1px solid var(--color-wr-border); padding: 1rem 1.25rem; margin-top: .5rem; line-height: 1.6; }
   .success { background: #fff; border: 1px solid var(--color-wr-yellow); padding: 2.5rem; }
   .success .big { font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; text-transform: uppercase; margin-bottom: .5rem; }
   .success a:not(.btn-outline) { color: #8A5D00; text-decoration: underline; }
@@ -152,7 +163,8 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
 </style>
 
 <script>
-  import { loadAvailability, conflicts, nextFree, fmtRange, fmt, daysBetween } from '../lib/availability';
+  import { loadAvailability, conflicts, nextFree, fmtRange, fmt, daysBetween, addDays, todayKey } from '../lib/availability';
+  import { getDates, setDates } from '../lib/dates';
   import { estimate, money } from '../lib/pricing';
   const KEY = 'wr-request-list';
   const $ = (id) => document.getElementById(id);
@@ -249,8 +261,16 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
     renderEstimate();
     return checkConflicts() || true;
   };
-  start.addEventListener('change', () => { if (end.value && end.value < start.value) end.value = start.value; dateCheck(); });
-  end.addEventListener('change', dateCheck);
+  const saveDates = () => { if (start.value && end.value && end.value >= start.value) setDates({ start: start.value, end: end.value }); };
+  start.addEventListener('change', () => { if (end.value && end.value < start.value) end.value = start.value; dateCheck(); saveDates(); });
+  end.addEventListener('change', () => { dateCheck(); saveDates(); });
+  $('lens').addEventListener('click', (ev) => {
+    const len = Number(ev.target.dataset && ev.target.dataset.len);
+    if (!len) return;
+    if (!start.value) start.value = todayKey();
+    end.value = addDays(start.value, len - 1);
+    dateCheck(); saveDates();
+  });
 
   document.querySelectorAll('input[name="method"]').forEach((r) => r.addEventListener('change', () => {
     $('address-wrap').classList.toggle('hidden', document.querySelector('input[name="method"]:checked').value !== 'Delivery');
@@ -293,6 +313,8 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.message || 'failed');
+      try { localStorage.setItem('wr-contact', JSON.stringify({ name: $('name').value.trim(), company: $('company').value.trim(), phone: $('phone').value.trim(), email: $('email').value.trim() })); } catch {}
+      $('sent-summary').textContent = message;
       write([]); form.classList.add('hidden'); success.classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
@@ -301,7 +323,13 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
     }
   });
 
+  // Remembered from earlier browsing (dates) and from a previous request (contact details).
+  const sd = getDates(); if (sd) { start.value = sd.start; end.value = sd.end; }
+  try {
+    const c = JSON.parse(localStorage.getItem('wr-contact') || 'null');
+    if (c) { $('name').value = c.name || ''; $('company').value = c.company || ''; $('phone').value = c.phone || ''; $('email').value = c.email || ''; }
+  } catch {}
   render();
-  renderEstimate();
+  dateCheck();
   loadAvailability().then((a) => { avail = a; checkConflicts(); });
 </script>

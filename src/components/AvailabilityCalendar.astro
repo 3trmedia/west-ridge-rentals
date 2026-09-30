@@ -10,7 +10,7 @@ const { slug, name } = Astro.props as { slug: string; name: string };
     </div>
   </div>
   <div class="months" data-months></div>
-  <p class="legend"><span class="sw open"></span>Open <span class="sw booked"></span>Booked <span class="note">Dates are confirmed by our team when you request.</span></p>
+  <p class="legend"><span class="sw open"></span>Open <span class="sw booked"></span>Booked <span class="sw selc"></span>Your dates <span class="note">Click a start day, then an end day. Dates are confirmed by our team when you request.</span></p>
   <p class="status" data-status></p>
 </div>
 
@@ -26,6 +26,7 @@ const { slug, name } = Astro.props as { slug: string; name: string };
   .sw { display: inline-block; width: .9rem; height: .9rem; margin-right: -.4rem; border: 1px solid var(--color-wr-border); }
   .sw.open { background: #fff; }
   .sw.booked { background: #d9d9d4; }
+  .sw.selc { background: var(--color-wr-yellow); border-color: var(--color-wr-yellow); }
   .note { flex-basis: 100%; }
   .status { margin-top: .75rem; font-weight: 600; color: #8A5D00; min-height: 1.2rem; }
   @media (max-width: 700px) { .months { grid-template-columns: 1fr; } }
@@ -38,12 +39,17 @@ const { slug, name } = Astro.props as { slug: string; name: string };
   .cal .day { aspect-ratio: 1; display: grid; place-items: center; font-size: .85rem; background: #fff; border: 1px solid var(--color-wr-border); }
   .cal .day.booked { background: #d9d9d4; color: #777; text-decoration: line-through; border-color: #d9d9d4; }
   .cal .day.past { background: transparent; border-color: transparent; color: #b5b9b5; }
+  .cal .day.pick { cursor: pointer; }
+  .cal .day.pick:hover { border-color: #121212; }
+  .cal .day.inrange { background: #FFF1C2; border-color: #FFE08A; }
+  .cal .day.sel { background: var(--color-wr-yellow); border-color: var(--color-wr-yellow); font-weight: 700; }
   .cal .day.today { outline: 2px solid var(--color-wr-yellow); outline-offset: -2px; font-weight: 700; }
   .cal .day.blank { background: transparent; border-color: transparent; }
 </style>
 
 <script>
-  import { loadAvailability, isBooked, todayKey, fmt, bookedUntil, addDays } from '../lib/availability';
+  import { loadAvailability, isBooked, todayKey, fmt, bookedUntil, addDays, conflicts } from '../lib/availability';
+  import { getDates, setDates } from '../lib/dates';
 
   const root = document.querySelector<HTMLElement>('[data-avail-cal]');
   if (root) {
@@ -78,10 +84,30 @@ const { slug, name } = Astro.props as { slug: string; name: string };
           if (key < today) cls.push('past');
           else if (isBooked(avail, slug, key)) cls.push('booked');
           if (key === today) cls.push('today');
-          g.insertAdjacentHTML('beforeend', `<div class="${cls.join(' ')}" ${cls.includes('booked') ? 'title="Booked"' : ''}>${d}</div>`);
+          g.insertAdjacentHTML('beforeend', `<div class="${cls.join(' ')}${cls.includes('booked') || cls.includes('past') ? '' : ' pick'}" data-date="${key}" ${cls.includes('booked') ? 'title="Booked"' : ''}>${d}</div>`);
         }
         return wrap;
       };
+
+      const paint = () => {
+        const d = getDates();
+        monthsEl.querySelectorAll<HTMLElement>('.day[data-date]').forEach((el) => {
+          const k = el.dataset.date!;
+          el.classList.toggle('sel', !!d && (k === d.start || k === d.end));
+          el.classList.toggle('inrange', !!d && k > d.start && k < d.end);
+        });
+      };
+      let anchor: string | null = null; // first click of a new range, before the second click
+      monthsEl.addEventListener('click', (ev) => {
+        const el = (ev.target as HTMLElement).closest<HTMLElement>('.day.pick');
+        if (!el) return;
+        const k = el.dataset.date!;
+        if (!anchor) { anchor = k; setDates({ start: k, end: k }); return; }
+        const [a, b] = k < anchor ? [k, anchor] : [anchor, k];
+        if (conflicts(avail, slug, a, b).length) { anchor = k; setDates({ start: k, end: k }); return; } // range crosses a booked day
+        anchor = null; setDates({ start: a, end: b });
+      });
+      window.addEventListener('wr-dates-changed', paint);
 
       const render = () => {
         monthsEl.innerHTML = '';
@@ -89,6 +115,7 @@ const { slug, name } = Astro.props as { slug: string; name: string };
           const idx = tm - 1 + offset + i;
           monthsEl.appendChild(month(ty + Math.floor(idx / 12), (idx % 12) + 1));
         }
+        paint();
         prev.disabled = offset === 0;
         next.disabled = offset >= 10;
       };
