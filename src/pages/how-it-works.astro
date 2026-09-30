@@ -2,9 +2,10 @@
 import Layout from '../layouts/Layout.astro';
 import PageHero from '../components/PageHero.astro';
 import { site } from '../data/site';
+import { IMG } from '../lib/images';
 const steps = [
   ['Build your request list', 'Browse the fleet and tap "Add to request" on everything you need. Your list follows you around the site.'],
-  ['Pick dates and delivery', 'Choose your start and return dates, then pickup at our yard or delivery to your job site.'],
+  ['Pick dates and delivery', 'Choose your start and return dates, then pickup at our yard or delivery to your job site. You will see an estimated total right away.'],
   ['Send it over', 'Add your contact info and submit. There is no payment and no commitment at this step.'],
   ['We confirm', `${site.manager} checks availability, confirms pricing and delivery, and gets back to you by phone or email.`],
   ['Pick up or get delivered', 'Sign the rental agreement, do a quick walk-around, and get to work.'],
@@ -19,13 +20,13 @@ const faqs = [
 ];
 ---
 <Layout title="How Renting Works | West Ridge Rentals" description="Renting from West Ridge is simple: build a request, pick dates, and our team confirms availability and delivery.">
-  <PageHero eyebrow="How it works" kicker="Renting made simple" title="Five steps. No runaround." intro="From request to job site, here's what to expect." primary={['Start Your Request', '/request']} />
+  <PageHero eyebrow="How it works" title="Five steps. No runaround." intro="From request to job site, here's what to expect." primary={['Start your request', '/equipment']} image={IMG.yard} alt="Equipment yard with loaders and lifts" />
 
   <section class="section section-gray">
     <div class="container narrow">
       <ol class="steps">
         {steps.map(([t, d], i) => (
-          <li class="card card-accent">
+          <li class="card">
             <span class="num">{i + 1}</span>
             <div><h3>{t}</h3><p>{d}</p></div>
           </li>
@@ -34,7 +35,7 @@ const faqs = [
     </div>
   </section>
 
-  <section class="section section-mid">
+  <section class="section section-white">
     <div class="container">
       <div style="text-align: center; margin-bottom: 2.5rem;"><p class="eyebrow">Common questions</p><h2 class="h2">Rental FAQ</h2></div>
       <div class="faq">{faqs.map(([q, a]) => <div class="card card-accent" style="padding: 1.25rem 1.5rem;"><h3 class="q">{q}</h3><p class="a">{a}</p></div>)}</div>
@@ -43,14 +44,14 @@ const faqs = [
 </Layout>
 
 <style>
-  .narrow { max-width: 860px; }
+  .narrow { max-width: 880px; }
   .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
-  .steps li { display: flex; gap: 1.5rem; padding: 1.5rem; align-items: flex-start; }
-  .num { font-family: var(--font-heading); font-size: 3rem; font-weight: 700; line-height: 1; color: var(--color-wr-yellow-dark); min-width: 2rem; }
-  .steps h3 { font-size: 1.4rem; text-transform: uppercase; letter-spacing: .03em; }
-  .steps p { color: var(--color-wr-muted); margin-top: .3rem; line-height: 1.6; }
+  .steps li { display: flex; gap: 1.5rem; padding: 1.6rem 1.75rem; align-items: flex-start; }
+  .num { flex: none; display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%; background: var(--color-wr-yellow); color: var(--color-wr-ink); font-family: var(--font-heading); font-weight: 800; font-size: 1.4rem; }
+  .steps h3 { font-size: 1.3rem; font-weight: 800; }
+  .steps p { color: var(--color-wr-muted); margin-top: .3rem; line-height: 1.65; }
   .faq { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .q { font-family: var(--font-body); font-size: 1.05rem; font-weight: 600; text-transform: none; letter-spacing: .01em; margin-bottom: .4rem; }
-  .a { font-size: .9rem; color: var(--color-wr-muted); line-height: 1.6; }
+  .q { font-family: var(--font-body); font-size: 1.02rem; font-weight: 700; letter-spacing: 0; margin-bottom: .4rem; }
+  .a { font-size: .92rem; color: var(--color-wr-muted); line-height: 1.6; }
   @media (max-width: 800px) { .faq { grid-template-columns: 1fr; } }
 </style>

@@ -28,7 +28,7 @@ const { slug, name } = Astro.props as { slug: string; name: string };
   .sw.booked { background: #d9d9d4; }
   .sw.selc { background: var(--color-wr-yellow); border-color: var(--color-wr-yellow); }
   .note { flex-basis: 100%; }
-  .status { margin-top: .75rem; font-weight: 600; color: #8A5D00; min-height: 1.2rem; }
+  .status { margin-top: .75rem; font-weight: 600; color: #B45300; min-height: 1.2rem; }
   @media (max-width: 700px) { .months { grid-template-columns: 1fr; } }
 </style>
 
@@ -41,7 +41,7 @@ const { slug, name } = Astro.props as { slug: string; name: string };
   .cal .day.past { background: transparent; border-color: transparent; color: #b5b9b5; }
   .cal .day.pick { cursor: pointer; }
   .cal .day.pick:hover { border-color: #121212; }
-  .cal .day.inrange { background: #FFF1C2; border-color: #FFE08A; }
+  .cal .day.inrange { background: #FFE6CC; border-color: #FFC994; }
   .cal .day.sel { background: var(--color-wr-yellow); border-color: var(--color-wr-yellow); font-weight: 700; }
   .cal .day.today { outline: 2px solid var(--color-wr-yellow); outline-offset: -2px; font-weight: 700; }
   .cal .day.blank { background: transparent; border-color: transparent; }

@@ -2,9 +2,10 @@
 import Layout from '../layouts/Layout.astro';
 import PageHero from '../components/PageHero.astro';
 import { regions, site } from '../data/site';
+import { catImg } from '../lib/images';
 ---
 <Layout title="Service Areas | West Ridge Rentals" description="West Ridge Rentals delivers equipment across Utah, from Logan to St. George, including Salt Lake Valley, Utah County and the Wasatch Back.">
-  <PageHero eyebrow="Where we work" kicker="Equipment delivery across Utah" title="Serving all of Utah" intro="We deliver trucks and equipment to job sites statewide. Delivery is quoted by distance, or pick up from our yard." primary={['Request a Rental', '/request']} secondary={[`Call ${site.phone}`, site.phoneHref]} />
+  <PageHero eyebrow="Where we work" kicker="Equipment delivery across Utah" title="Serving all of Utah" intro="We deliver trucks and equipment to job sites statewide. Delivery is quoted by distance, or pick up from our yard." primary={['Request a rental', '/request']} secondary={[`Call ${site.phone}`, site.phoneHref]} image={catImg('trucks')} alt="Dump truck on a Utah job site" />
 
   <section class="section section-gray">
     <div class="container">
@@ -16,7 +17,7 @@ import { regions, site } from '../data/site';
           </div>
         ))}
       </div>
-      <p class="lead" style="text-align: center; margin-top: 2.5rem;">Don't see your city? <a href={site.phoneHref} style="color: #8A5D00; text-decoration: underline;">Give us a call</a>. We likely still serve it.</p>
+      <p class="lead" style="text-align: center; margin-top: 2.5rem;">Don't see your city? <a href={site.phoneHref} style="color: #B45300; text-decoration: underline;">Give us a call</a>. We likely still serve it.</p>
     </div>
   </section>
 </Layout>
@@ -24,7 +25,7 @@ import { regions, site } from '../data/site';
 <style>
   .regions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
   .region { padding: 1.75rem; }
-  .region h3 { font-size: 1.4rem; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 1rem; }
+  .region h3 { font-size: 1.35rem; font-weight: 800; margin-bottom: 1rem; }
   .chips { display: flex; flex-wrap: wrap; gap: .5rem; }
   @media (max-width: 900px) { .regions { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) { .regions { grid-template-columns: 1fr; } }

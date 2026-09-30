@@ -1,24 +1,35 @@
 ---
-// J&C-style light page header: eyebrow, small red kicker, big H1, intro, optional buttons, hairline rule.
-const { eyebrow, kicker, title, intro, primary, secondary } = Astro.props as {
+// Dark page header with an optional photo behind it: eyebrow, big title, intro, optional buttons.
+const { eyebrow, kicker, title, intro, primary, secondary, image, alt = '' } = Astro.props as {
   eyebrow: string; kicker?: string; title: string; intro?: string;
-  primary?: [string, string]; secondary?: [string, string];
+  primary?: [string, string]; secondary?: [string, string]; image?: string; alt?: string;
 };
 ---
-<section class="section-white rule-bottom" style="padding: 4rem 0 4.5rem;">
-  <div class="container">
-    <p class="eyebrow">{eyebrow}</p>
-    {kicker && <p class="eyebrow-strong">{kicker}</p>}
-    <h1 class="h1" style="max-width: 46rem;">{title}</h1>
-    {intro && <p class="lead" style="max-width: 38rem; margin-top: 1.25rem;">{intro}</p>}
+<section class="page-hero">
+  {image && <img class="bg" src={image} alt={alt} width="1600" height="900" fetchpriority="high" decoding="async" />}
+  <div class="shade"></div>
+  <div class="container inner">
+    <p class="eyebrow eyebrow-light">{eyebrow}</p>
+    <h1>{title}</h1>
+    {intro && <p class="intro">{intro}</p>}
+    {kicker && <p class="kicker">{kicker}</p>}
     {(primary || secondary) && (
-      <div style="display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 2rem;">
+      <div class="actions">
         {primary && <a href={primary[1]} class="btn-primary">{primary[0]}</a>}
-        {secondary && <a href={secondary[1]} class="btn-outline">{secondary[0]}</a>}
+        {secondary && <a href={secondary[1]} class="btn-glass">{secondary[0]}</a>}
       </div>
     )}
   </div>
 </section>
+
 <style>
-  .rule-bottom { border-bottom: 4px solid var(--color-wr-yellow); }
+  .page-hero { position: relative; background: linear-gradient(135deg, #2a2e34, #15181b 70%); color: #fff; overflow: hidden; }
+  .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,17,19,.88) 0%, rgba(15,17,19,.62) 55%, rgba(15,17,19,.35) 100%); }
+  .inner { position: relative; padding-top: 4.5rem; padding-bottom: 4.75rem; }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; line-height: 1.04; color: #fff; max-width: 40rem; }
+  .intro { color: #d5d8dc; font-size: 1.08rem; line-height: 1.65; max-width: 36rem; margin-top: 1.1rem; }
+  .kicker { margin-top: .9rem; font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--color-wr-yellow); }
+  .actions { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 2rem; }
+  @media (max-width: 700px) { .inner { padding-top: 3.25rem; padding-bottom: 3.5rem; } .shade { background: rgba(15,17,19,.72); } }
 </style>

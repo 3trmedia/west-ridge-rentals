@@ -1,16 +1,14 @@
 ---
-import Icon from './Icon.astro';
-import { categories, catName, type Item } from '../data/equipment';
+import { catName, type Item } from '../data/equipment';
 import { money } from '../lib/pricing';
+import { itemImg } from '../lib/images';
 const { item } = Astro.props as { item: Item };
-const icon = categories.find((c) => c.slug === item.category)?.icon ?? 'truck';
 const href = `/equipment/${item.category}/${item.slug}`;
 ---
 <article class="item-card" data-item-card data-slug={item.slug} data-name={item.name.toLowerCase()} data-category={item.category} data-rates={item.rates.join(',')}>
-  <a href={href} class="thumb">
-    <Icon name={icon} class="w-14 h-14" />
+  <a href={href} class="thumb" tabindex="-1" aria-label={item.name}>
+    <img src={itemImg(item.slug)} alt={`${item.name} available to rent in Utah`} width="600" height="450" loading="lazy" decoding="async" />
     <span class="tag">{catName(item.category)}</span>
-    <span class="soon">Photo coming soon</span>
     <span class="booked-pill" data-avail-slot data-slug={item.slug} hidden></span>
   </a>
   <div class="body">
@@ -26,27 +24,28 @@ const href = `/equipment/${item.category}/${item.slug}`;
 </article>
 
 <style>
-  .item-card { background: #fff; border: 1px solid var(--color-wr-border); display: flex; flex-direction: column; transition: box-shadow .2s, transform .2s; }
-  .item-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
+  .item-card { background: #fff; border: 1px solid var(--color-wr-border); border-radius: var(--radius-card); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .2s, transform .2s; }
+  .item-card:hover { box-shadow: 0 14px 34px rgba(15,17,19,.12); transform: translateY(-3px); }
   .item-card.hidden { display: none; }
-  :global(.item-card.unavail) { opacity: .6; }
-  .thumb { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; aspect-ratio: 4/3; background: var(--color-wr-mid); color: #a9afa9; text-decoration: none; }
-  .tag { position: absolute; top: 0; left: 0; background: var(--color-wr-yellow); color: #121212; font-family: var(--font-heading); font-weight: 600; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; padding: .25rem .6rem; }
-  .booked-pill { position: absolute; left: 0; bottom: 0; background: #121212; color: #fff; font-family: var(--font-heading); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; padding: .3rem .7rem; }
-  .soon { font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; }
-  .body { padding: 1.1rem 1.1rem 1.25rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }
-  h3 { font-size: 1.2rem; text-transform: uppercase; letter-spacing: .04em; line-height: 1.1; }
-  h3 a { color: #121212; text-decoration: none; }
-  h3 a:hover { color: #8A5D00; }
+  :global(.item-card.unavail) { opacity: .62; }
+  .thumb { position: relative; display: block; aspect-ratio: 4/3; background: var(--color-wr-mid); overflow: hidden; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+  .item-card:hover .thumb img { transform: scale(1.04); }
+  .tag { position: absolute; top: .75rem; left: .75rem; background: rgba(255,255,255,.94); color: var(--color-wr-ink); font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: .3rem .65rem; border-radius: 999px; }
+  .booked-pill { position: absolute; left: .75rem; bottom: .75rem; background: var(--color-wr-ink); color: #fff; font-size: .72rem; font-weight: 600; padding: .3rem .7rem; border-radius: 999px; }
+  .body { padding: 1.1rem 1.15rem 1.2rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }
+  h3 { font-size: 1.2rem; font-weight: 700; line-height: 1.15; }
+  h3 a { color: var(--color-wr-ink); text-decoration: none; }
+  h3 a:hover { color: var(--color-wr-amber); }
   .meta { font-size: .85rem; color: var(--color-wr-muted); line-height: 1.5; }
-  .specs { list-style: none; padding: 0; margin: 0; flex: 1; display: grid; gap: .15rem; font-size: .78rem; color: #333; }
+  .specs { list-style: none; padding: 0; margin: 0; flex: 1; display: grid; gap: .15rem; font-size: .8rem; color: #333; }
   .specs span { color: var(--color-wr-muted); margin-right: .4rem; }
   .specs span::after { content: ':'; }
-  .est-line { font-size: .8rem; font-weight: 600; color: #8A5D00; background: #FFF6D6; padding: .35rem .6rem; }
+  .est-line { font-size: .8rem; font-weight: 600; color: var(--color-wr-amber); background: #FFF1E3; padding: .4rem .7rem; border-radius: 10px; }
   .est-line.bad { color: #7a2a00; background: #FDE8D8; }
-  .foot { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding-top: .5rem; }
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding-top: .6rem; border-top: 1px solid var(--color-wr-border); margin-top: .35rem; }
   .price { display: flex; flex-direction: column; line-height: 1.25; font-size: .8rem; color: #444; }
-  .price strong { font-family: var(--font-heading); font-size: 1.4rem; color: #121212; }
+  .price strong { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--color-wr-ink); }
   .price small { color: var(--color-wr-muted); font-size: .72rem; }
-  .add { padding: .55rem 1rem; font-size: .75rem; }
+  .add { flex: none; width: 7.6rem; padding: .6rem .5rem; font-size: .8rem; }
 </style>

@@ -1,37 +1,49 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PageHero from '../components/PageHero.astro';
-import Icon from '../components/Icon.astro';
 import { site } from '../data/site';
-const values = [['Statewide', 'Serving businesses across Utah'], ['Maintained', 'Inspected between every rental'], ['Responsive', 'Real people, fast answers']];
+import { items } from '../data/equipment';
+import { IMG, catImg } from '../lib/images';
+const values = [
+  ['Clear pricing', 'Day, week and month rates are posted on every item, with an estimate before you request.'],
+  ['Maintained gear', 'Every machine is inspected between rentals so it shows up ready to work.'],
+  ['Real people', `${site.manager} and the team reply fast, by phone or email, not a ticket number.`],
+];
 ---
-<Layout title="About | West Ridge Rentals" description="West Ridge Rentals supplies trucks, excavation and landscaping equipment to Utah businesses and contractors.">
-  <PageHero eyebrow="About us" title="Utah's equipment rental team" intro="Well-maintained trucks, excavation and landscaping equipment for Utah's contractors and businesses, without the runaround." primary={['Request a Rental', '/request']} />
+<Layout title="About | West Ridge Rentals" description="West Ridge Rentals supplies trucks, excavation and landscaping equipment to Utah contractors, landscapers and homeowners.">
+  <PageHero eyebrow="About us" title="Utah's equipment rental team" intro="Well-maintained trucks, excavation and landscaping equipment for Utah's contractors and homeowners, without the runaround." primary={['Request a rental', '/request']} image={catImg('excavation')} alt="Excavator on a Utah job site" />
 
-  <section class="section section-gray">
-    <div class="container why">
-      <div class="visual"><Icon name="truck" class="w-32 h-32" /></div>
+  <section class="section section-white">
+    <div class="container about">
+      <div class="photo"><img src={IMG.about} alt="Two crew members in hi-vis vests overlooking an excavation site" width="900" height="1100" loading="lazy" decoding="async" /></div>
       <div>
         <p class="eyebrow">Our story</p>
         <h2 class="h2" style="margin-bottom: 1.25rem;">Built for people who work</h2>
         <p class="lead" style="margin-bottom: 1rem;">Tell us what you need and when. {site.manager} and the team handle availability, delivery and paperwork so you can stay focused on the job.</p>
-        <p class="lead" style="margin-bottom: 1.5rem;">[Placeholder: company story, years in business, service area and team photo go here once provided.]</p>
-        <a href="/contact" class="btn-outline">Get in Touch</a>
+        <p class="lead" style="margin-bottom: 1.75rem;">[Placeholder: company story, years in business and team photo go here once provided.]</p>
+        <div class="pills">
+          <span class="pill"><strong>{items.length}+</strong><span>Machines</span></span>
+          <span class="pill"><strong>Utah</strong><span>Statewide</span></span>
+          <span class="pill"><strong>1 day</strong><span>Typical reply</span></span>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section section-white">
+  <section class="section section-gray">
     <div class="container">
       <div style="text-align: center; margin-bottom: 2.5rem;"><p class="eyebrow">What we stand for</p><h2 class="h2">The West Ridge way</h2></div>
-      <div class="vals">{values.map(([t, d]) => <div class="card card-accent" style="padding: 1.75rem;"><h3 style="font-size: 1.5rem; text-transform: uppercase;">{t}</h3><p class="lead" style="margin-top: .5rem; font-size: .95rem;">{d}</p></div>)}</div>
+      <div class="vals">{values.map(([t, d]) => <div class="card card-accent" style="padding: 1.9rem;"><h3 style="font-size: 1.35rem; font-weight: 800;">{t}</h3><p class="lead" style="margin-top: .5rem; font-size: .95rem;">{d}</p></div>)}</div>
+      <div style="text-align: center; margin-top: 3rem;"><a href="/contact" class="btn-dark">Get in touch</a></div>
     </div>
   </section>
 </Layout>
 
 <style>
-  .why { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-  .visual { aspect-ratio: 4/3; background: #fff; border: 1px solid var(--color-wr-border); display: grid; place-items: center; color: #b7bcb7; }
+  .about { display: grid; grid-template-columns: .9fr 1.1fr; gap: 4.5rem; align-items: center; }
+  .photo { border-radius: 26px; overflow: hidden; aspect-ratio: 9/11; box-shadow: 0 24px 50px rgba(15,17,19,.16); }
+  .photo img { width: 100%; height: 100%; object-fit: cover; }
+  .pills { display: flex; flex-wrap: wrap; gap: .75rem; }
   .vals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
-  @media (max-width: 800px) { .why, .vals { grid-template-columns: 1fr; gap: 2rem; } }
+  @media (max-width: 900px) { .about, .vals { grid-template-columns: 1fr; gap: 2.5rem; } .photo { aspect-ratio: 4/3; } }
 </style>

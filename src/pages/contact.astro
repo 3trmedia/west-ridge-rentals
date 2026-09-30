@@ -65,7 +65,7 @@ import { site, featuredCities } from '../data/site';
       });
       const data = await res.json();
       if (!data.success) throw new Error();
-      $('contact').reset(); st.textContent = "Thanks! We'll be in touch within one business day."; st.className = ''; st.style.color = '#8A5D00';
+      $('contact').reset(); st.textContent = "Thanks! We'll be in touch within one business day."; st.className = ''; st.style.color = '#B45300';
     } catch { st.textContent = 'Something went wrong. Please try again or call us.'; st.className = 'err'; st.style.color = ''; }
     btn.disabled = false; btn.textContent = 'Send Message';
   });

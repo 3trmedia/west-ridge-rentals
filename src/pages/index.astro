@@ -1,148 +1,297 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Icon from '../components/Icon.astro';
-import ItemCard from '../components/ItemCard.astro';
-import { categories, items } from '../data/equipment';
+import { categories, items, catName } from '../data/equipment';
 import { site, featuredCities } from '../data/site';
-const featured = [items[0], items[3], items[5], items[7], items[10], items[2]];
-// PLACEHOLDER stats: swap for real numbers once the client provides them.
-const stats = [['Statewide', 'Utah-wide delivery'], ['4', 'Equipment categories'], ['$0', 'To send a request'], ['1 Day', 'Typical response']];
+import { money } from '../lib/pricing';
+import { itemImg, catImg, IMG } from '../lib/images';
+
+// Six picks for the "All" tab; each category tab shows its own items.
+const featuredSlugs = ['mini-excavator-35', 'dump-truck-10yd', 'skid-steer', 'excavator-20t', 'compact-track-loader', 'flatbed-trailer-20'];
+const steps = [
+  ['Pick your equipment', 'Browse the fleet and add what you need. Rates are right there on every item.'],
+  ['Choose your dates', 'Set your dates once and see estimated pricing and what is open, then pick up or get it delivered.'],
+  ['We confirm', `${site.manager} checks availability and confirms your total, usually within one business day.`],
+];
+const industries = [
+  ['Contractors', 'Excavators, trucks and compaction on your schedule, by the day, week or month.', IMG.contractors, '/equipment/excavation', 'Excavation rentals'],
+  ['Landscapers', 'Compact loaders, grinders and trenchers that fit gates and finished yards.', IMG.landscapers, '/equipment/landscaping', 'Landscaping rentals'],
+  ['Homeowners & property managers', 'Backyard projects, drainage and cleanup without buying the machine.', IMG.homeowners, '/equipment', 'Browse equipment'],
+];
 ---
-<Layout title="West Ridge Rentals | Truck & Equipment Rentals in Utah" description="Rent dump trucks, excavators, skid steers and landscaping equipment across Utah. Request your rental online and we'll confirm availability fast.">
+<Layout title="West Ridge Rentals | Truck & Equipment Rentals in Utah" description="Rent dump trucks, excavators, skid steers and landscaping equipment across Utah. See rates, set your dates and request your rental online.">
   <!-- Hero -->
   <section class="hero">
+    <img class="hero-img" src={IMG.hero} alt="Yellow excavator digging against a bright blue sky" width="2000" height="1000" fetchpriority="high" decoding="async" />
+    <div class="hero-shade"></div>
     <div class="container hero-inner">
-      <div>
-        <p class="kicker">Equipment rentals across Utah</p>
-        <h1>Equipment that's ready when your job is.</h1>
-        <p class="sub">Trucks, excavators and landscaping equipment for contractors and businesses. Build a request in minutes and our team handles the rest. Serving all of Utah.</p>
-        <div class="actions">
-          <a href="/request" class="btn-primary">Request a Rental</a>
-          <a href="/equipment" class="btn-outline-light">Browse Equipment</a>
+      <p class="eyebrow eyebrow-light">Equipment rentals across Utah</p>
+      <h1>Rent heavy equipment<br />for any job</h1>
+      <p class="sub">Trucks, excavators and landscaping equipment for contractors and homeowners. Clear rates, live availability and one simple request.</p>
+      <div class="actions">
+        <a href="/request" class="btn-primary">Request a rental</a>
+        <a href="/equipment" class="btn-glass">Browse equipment</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Finder sheet (overlaps the hero) -->
+  <section class="finder">
+    <div class="container finder-grid">
+      <div class="finder-side">
+        <h2 class="h2">Find the right equipment <span>for your next project</span></h2>
+        <form id="finder-form" class="date-form">
+          <div><label class="label" for="f-start">Start date</label><input class="field" type="date" id="f-start" required /></div>
+          <div><label class="label" for="f-end">Return date</label><input class="field" type="date" id="f-end" required /></div>
+          <button type="submit" class="btn-primary">Check availability &amp; pricing</button>
+          <p class="hint">See what's open and your estimated total. No payment now.</p>
+        </form>
+      </div>
+
+      <div class="finder-main">
+        <div class="tabs" role="tablist" aria-label="Equipment categories">
+          <button class="tab" data-tab="all" aria-pressed="true">Popular</button>
+          {categories.map((c) => <button class="tab" data-tab={c.slug} aria-pressed="false">{c.name}</button>)}
+          <a href="/equipment" class="viewall">View all equipment &rarr;</a>
+        </div>
+        <div class="tiles">
+          {items.map((i) => (
+            <a href={`/equipment/${i.category}/${i.slug}`} class="tile" data-cat={i.category} data-featured={featuredSlugs.includes(i.slug) ? '1' : '0'}>
+              <span class="tile-img"><img src={itemImg(i.slug)} alt={`${i.name} for rent`} width="480" height="360" loading="lazy" decoding="async" /></span>
+              <span class="tile-name">{i.name}</span>
+              <span class="tile-meta">From <strong>{money(i.rates[0])}</strong>/day</span>
+            </a>
+          ))}
         </div>
       </div>
-      <div class="tiles" aria-hidden="true">
-        {categories.map((c) => <div class="tile"><Icon name={c.icon} class="w-16 h-16" /></div>)}
-      </div>
     </div>
   </section>
 
-  <!-- Stats band -->
-  <section class="stats">
-    <div class="container stats-grid">
-      {stats.map(([n, l]) => <div><strong>{n}</strong><span>{l}</span></div>)}
+  <!-- Orange strip -->
+  <div class="strip">
+    <div class="container strip-inner">
+      <span>Serving contractors and homeowners across Utah</span>
+      <span>Day, week and month rates</span>
+      <span>Delivery or pickup</span>
     </div>
-  </section>
+  </div>
 
   <!-- Categories -->
-  <section class="section section-white">
+  <section class="section section-gray">
     <div class="container">
-      <div style="text-align: center; max-width: 40rem; margin: 0 auto 3rem;">
-        <p class="eyebrow">What we rent</p>
-        <h2 class="h2" style="margin-bottom: 1rem;">Everything you need. One call.</h2>
-        <p class="lead">From hauling to digging to finishing, rent one machine or the whole lineup without juggling suppliers.</p>
+      <div class="head">
+        <div><p class="eyebrow">What we rent</p><h2 class="h2">Everything you need, one call away</h2></div>
+        <a href="/equipment" class="btn-outline">View all equipment</a>
       </div>
       <div class="cats">
         {categories.map((c) => (
           <a href={`/equipment/${c.slug}`} class="cat">
-            <span class="ico"><Icon name={c.icon} class="w-9 h-9" /></span>
-            <h3>{c.name}</h3>
-            <p>{c.blurb}</p>
-            <span class="more">Learn more &rarr;</span>
+            <img src={catImg(c.slug)} alt={`${c.name} rentals`} width="800" height="1000" loading="lazy" decoding="async" />
+            <span class="cat-shade"></span>
+            <span class="cat-body"><strong>{c.name}</strong><em>{c.blurb}</em><b>Explore &rarr;</b></span>
           </a>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- Why -->
-  <section class="section section-gray">
-    <div class="container why">
-      <div class="visual"><Icon name="excavator" class="w-32 h-32" /><span class="badge"><strong>1 Day</strong><small>Typical response</small></span></div>
+  <!-- About -->
+  <section class="section section-white">
+    <div class="container about">
       <div>
         <p class="eyebrow">Why West Ridge</p>
-        <h2 class="h2" style="margin-bottom: 1.25rem;">Renting without the runaround</h2>
-        <p class="lead" style="margin-bottom: 1.5rem;">Tell us what you need and when. {site.manager} and the team check availability, confirm pricing and arrange delivery so you can stay on the job.</p>
-        <ul class="check-list" style="margin-bottom: 2rem;">
-          <li><span><strong>One request, every machine.</strong> Build a list and send it in a single form.</span></li>
+        <h2 class="h2" style="margin-bottom: 1.25rem;">Heavy machinery, without the runaround</h2>
+        <p class="lead" style="margin-bottom: 1rem;">Tell us what you need and when. {site.manager} and the team check availability, confirm pricing and arrange delivery so you can stay on the job.</p>
+        <ul class="check-list" style="margin: 1.5rem 0 2rem;">
+          <li><span><strong>Rates you can see.</strong> Day, week and month pricing on every item.</span></li>
+          <li><span><strong>Live availability.</strong> Booked dates are blocked, so you only request what is open.</span></li>
           <li><span><strong>Maintained equipment.</strong> Inspected between every rental.</span></li>
-          <li><span><strong>Delivery or pickup.</strong> Your site or our yard, your call.</span></li>
-          <li><span><strong>Real people.</strong> A quick call or email back, not a ticket number.</span></li>
         </ul>
-        <a href="/how-it-works" class="btn-outline">See How It Works</a>
+        <div class="pills">
+          <span class="pill"><strong>{items.length}+</strong><span>Machines</span></span>
+          <span class="pill"><strong>Utah</strong><span>Statewide</span></span>
+          <span class="pill"><strong>1 day</strong><span>Typical reply</span></span>
+        </div>
       </div>
+      <div class="about-photo"><img src={IMG.about} alt="Two crew members in hi-vis vests overlooking an excavation site" width="900" height="1100" loading="lazy" decoding="async" /></div>
     </div>
   </section>
 
-  <!-- Fleet -->
-  <section class="section section-white">
+  <!-- Best match -->
+  <section class="section section-dark match">
     <div class="container">
-      <div style="text-align: center; margin-bottom: 3rem;">
-        <p class="eyebrow">From the fleet</p>
-        <h2 class="h2" style="margin-bottom: .75rem;">Popular rentals</h2>
-        <p class="lead">Add what you need and send one request.</p>
+      <div style="max-width: 34rem; margin-bottom: 3rem;">
+        <p class="eyebrow eyebrow-light">Built for every crew</p>
+        <h2 class="h2" style="color: #fff; margin-bottom: 1rem;">The best match for every job</h2>
+        <p style="color: #b7bcc2; line-height: 1.7;">Whether you run a crew or you're tackling a weekend project, we have equipment sized for the work.</p>
       </div>
-      <div class="grid">{featured.map((i) => <ItemCard item={i} />)}</div>
-      <div style="text-align: center; margin-top: 2.5rem;"><a href="/equipment" class="btn-outline">View All Equipment &rarr;</a></div>
+      <div class="industries">
+        {industries.map(([t, d, img, href, cta]) => (
+          <a href={href} class="ind">
+            <span class="ind-img"><img src={img} alt={t} width="1000" height="750" loading="lazy" decoding="async" /></span>
+            <strong>{t}</strong>
+            <span>{d}</span>
+            <b>{cta} &rarr;</b>
+          </a>
+        ))}
+      </div>
     </div>
   </section>
 
-  <!-- Areas -->
+  <!-- How it works -->
   <section class="section section-gray">
-    <div class="container areas">
-      <div>
-        <p class="eyebrow">Where we work</p>
-        <h2 class="h2" style="margin-bottom: 1rem;">Serving all of Utah</h2>
-        <p class="lead" style="margin-bottom: 1.75rem;">From Logan to St. George, we deliver equipment to job sites across the state.</p>
-        <a href="/service-areas" class="btn-primary">View Service Areas</a>
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 3rem;"><p class="eyebrow">How it works</p><h2 class="h2">Request in three steps</h2></div>
+      <div class="steps">
+        {steps.map(([t, d], i) => (
+          <div class="step"><span class="num">{i + 1}</span><h3>{t}</h3><p>{d}</p></div>
+        ))}
       </div>
-      <div class="chips">{featuredCities.map((c) => <span class="chip">{c}</span>)}</div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <img src={IMG.yard} alt="" width="2000" height="700" loading="lazy" decoding="async" />
+    <div class="cta-shade"></div>
+    <div class="container cta-inner">
+      <div>
+        <h2>Ready when you are</h2>
+        <p>Send a request or call us and we'll confirm availability within one business day.</p>
+        <div class="chips">{featuredCities.slice(0, 6).map((c) => <span class="chip-d">{c}</span>)}<a href="/service-areas" class="chip-d more">All service areas &rarr;</a></div>
+      </div>
+      <div class="cta-actions">
+        <a href="/request" class="btn-primary">Request a rental</a>
+        <a href={site.phoneHref} class="btn-outline-light">Call {site.phone}</a>
+      </div>
     </div>
   </section>
 </Layout>
 
 <style>
-  .hero { background: linear-gradient(135deg, #2a2d31 0%, #1d1f22 55%, #141517 100%); color: #fff; position: relative; overflow: hidden; }
-  .hero::after { content: ''; position: absolute; right: -6rem; top: -6rem; width: 28rem; height: 28rem; border-radius: 50%; background: rgba(245,179,1,.12); filter: blur(60px); }
-  .hero-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1.4fr 1fr; gap: 3rem; align-items: center; padding-top: 6rem; padding-bottom: 6rem; }
-  .kicker { font-family: var(--font-heading); letter-spacing: .25em; text-transform: uppercase; font-size: .8rem; color: var(--color-wr-yellow); margin-bottom: 1rem; }
-  .hero h1 { font-size: clamp(2.6rem, 7vw, 4.75rem); font-weight: 700; text-transform: uppercase; line-height: 1; color: #fff; margin-bottom: 1.5rem; }
-  .sub { color: #c7cbd0; font-size: 1.1rem; line-height: 1.7; max-width: 34rem; margin-bottom: 2rem; }
+  /* Hero */
+  .hero { position: relative; min-height: 600px; display: flex; align-items: center; color: #fff; background: var(--color-wr-ink); overflow: hidden; }
+  .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
+  .hero-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,17,19,.82) 0%, rgba(15,17,19,.5) 45%, rgba(15,17,19,.08) 75%), linear-gradient(180deg, rgba(15,17,19,.25) 0%, rgba(15,17,19,0) 40%, rgba(15,17,19,.55) 100%); }
+  .hero-inner { position: relative; padding-top: 5rem; padding-bottom: 9rem; }
+  .hero h1 { font-size: clamp(2.6rem, 7vw, 5rem); font-weight: 800; text-transform: uppercase; line-height: .98; color: #fff; max-width: 46rem; margin-bottom: 1.4rem; letter-spacing: -.025em; }
+  .sub { color: #d9dce0; font-size: 1.1rem; line-height: 1.7; max-width: 34rem; margin-bottom: 2rem; }
   .actions { display: flex; gap: .75rem; flex-wrap: wrap; }
-  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
-  .tile { aspect-ratio: 1; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.12); background: rgba(0,0,0,.25); color: var(--color-wr-yellow); opacity: .85; }
 
-  .stats { background: var(--color-wr-yellow); color: #121212; }
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; padding-top: 2.25rem; padding-bottom: 2.25rem; gap: 1rem; }
-  .stats strong { display: block; font-family: var(--font-heading); font-size: 2.6rem; font-weight: 700; line-height: 1; }
-  .stats span { font-family: var(--font-heading); font-size: .75rem; letter-spacing: .15em; text-transform: uppercase; }
+  /* Finder */
+  .finder { position: relative; z-index: 2; background: var(--color-wr-white); border-radius: 32px 32px 0 0; margin-top: -4.5rem; padding: 3.25rem 0 3.5rem; }
+  .finder-grid { display: grid; grid-template-columns: 300px 1fr; gap: 3rem; align-items: start; }
+  .finder-side .h2 { font-size: clamp(1.7rem, 3vw, 2.15rem); margin-bottom: 1.5rem; }
+  .finder-side .h2 span { color: #9aa0a6; }
+  .date-form { display: grid; gap: .85rem; }
+  .date-form .btn-primary { margin-top: .25rem; }
+  .hint { font-size: .8rem; color: var(--color-wr-muted); }
+  .tabs { display: flex; flex-wrap: wrap; gap: .4rem 1.35rem; align-items: center; margin-bottom: 1.25rem; }
+  .tab { font-size: .92rem; font-weight: 600; color: var(--color-wr-muted); padding: .35rem 0; border-bottom: 2px solid transparent; transition: color .15s; }
+  .tab:hover { color: var(--color-wr-ink); }
+  .tab[aria-pressed="true"] { color: var(--color-wr-ink); border-bottom-color: var(--color-wr-yellow); }
+  .viewall { margin-left: auto; font-size: .9rem; font-weight: 600; color: var(--color-wr-amber); text-decoration: none; }
+  .viewall:hover { text-decoration: underline; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .tile { display: flex; flex-direction: column; gap: .15rem; text-decoration: none; color: inherit; }
+  .tile.hidden { display: none; }
+  .tile-img { display: block; aspect-ratio: 4/3; border-radius: 18px; overflow: hidden; background: var(--color-wr-mid); margin-bottom: .55rem; }
+  .tile-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
+  .tile:hover .tile-img img { transform: scale(1.05); }
+  .tile-name { font-weight: 700; font-size: .98rem; }
+  .tile-meta { font-size: .85rem; color: var(--color-wr-muted); }
+  .tile-meta strong { color: var(--color-wr-ink); }
 
-  .cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
-  .cat { background: #fff; border: 1px solid var(--color-wr-border); padding: 1.75rem; text-decoration: none; color: inherit; transition: box-shadow .2s, transform .2s; display: flex; flex-direction: column; gap: .5rem; }
-  .cat:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
-  .ico { color: #8A5D00; }
-  .cat h3 { font-size: 1.25rem; text-transform: uppercase; letter-spacing: .04em; margin-top: .75rem; }
-  .cat p { font-size: .9rem; color: var(--color-wr-muted); line-height: 1.6; flex: 1; }
-  .more { font-family: var(--font-heading); font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: #8A5D00; margin-top: .75rem; }
+  /* Orange strip */
+  .strip { background: var(--color-wr-yellow); color: var(--color-wr-ink); }
+  .strip-inner { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding-top: .95rem; padding-bottom: .95rem; font-weight: 600; font-size: .95rem; }
 
-  .why { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-  .visual { position: relative; aspect-ratio: 4/3; background: #fff; border: 1px solid var(--color-wr-border); display: grid; place-items: center; color: #b7bcb7; }
-  .badge { position: absolute; right: -1rem; bottom: -1.25rem; background: var(--color-wr-yellow); color: #121212; padding: 1rem 1.5rem; text-align: center; }
-  .badge strong { display: block; font-family: var(--font-heading); font-size: 2rem; line-height: 1; }
-  .badge small { font-family: var(--font-heading); font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; }
+  /* Categories */
+  .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+  .cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.1rem; }
+  .cat { position: relative; display: block; aspect-ratio: 4/5; border-radius: 22px; overflow: hidden; color: #fff; text-decoration: none; background: var(--color-wr-char); }
+  .cat img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+  .cat:hover img { transform: scale(1.06); }
+  .cat-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,17,19,0) 35%, rgba(15,17,19,.88) 100%); }
+  .cat-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 1.4rem; display: grid; gap: .35rem; }
+  .cat-body strong { font-family: var(--font-heading); font-size: 1.35rem; font-weight: 800; line-height: 1.1; }
+  .cat-body em { font-style: normal; font-size: .85rem; color: #d3d6da; line-height: 1.45; }
+  .cat-body b { font-size: .85rem; color: var(--color-wr-yellow); margin-top: .3rem; }
 
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-  .areas { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-  .chips { display: flex; flex-wrap: wrap; gap: .6rem; }
+  /* About */
+  .about { display: grid; grid-template-columns: 1.1fr .9fr; gap: 4.5rem; align-items: center; }
+  .pills { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .about-photo { border-radius: 26px; overflow: hidden; aspect-ratio: 9/11; box-shadow: 0 24px 50px rgba(15,17,19,.18); }
+  .about-photo img { width: 100%; height: 100%; object-fit: cover; }
 
-  @media (max-width: 960px) {
-    .hero-inner, .why, .areas { grid-template-columns: 1fr; gap: 2.5rem; }
-    .tiles { display: none; }
-    .hero-inner { padding-top: 4rem; padding-bottom: 4rem; }
+  /* Best match */
+  .industries { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .ind { display: flex; flex-direction: column; gap: .5rem; text-decoration: none; color: #b7bcc2; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 22px; padding: .8rem .8rem 1.5rem; transition: background .2s, transform .2s; }
+  .ind:hover { background: rgba(255,255,255,.09); transform: translateY(-3px); }
+  .ind-img { display: block; aspect-ratio: 4/3; border-radius: 16px; overflow: hidden; margin-bottom: .75rem; }
+  .ind-img img { width: 100%; height: 100%; object-fit: cover; }
+  .ind strong { color: #fff; font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; padding: 0 .7rem; }
+  .ind > span:not(.ind-img) { padding: 0 .7rem; font-size: .92rem; line-height: 1.6; }
+  .ind b { padding: 0 .7rem; color: var(--color-wr-yellow); font-size: .88rem; margin-top: .25rem; }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .step { background: #fff; border: 1px solid var(--color-wr-border); border-radius: 22px; padding: 2rem; }
+  .num { display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%; background: var(--color-wr-yellow); color: var(--color-wr-ink); font-family: var(--font-heading); font-weight: 800; font-size: 1.4rem; margin-bottom: 1.1rem; }
+  .step h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: .4rem; }
+  .step p { color: var(--color-wr-muted); line-height: 1.65; }
+
+  /* CTA */
+  .cta { position: relative; color: #fff; background: var(--color-wr-ink); overflow: hidden; }
+  .cta img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cta-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,17,19,.92), rgba(15,17,19,.7)); }
+  .cta-inner { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 2.5rem; flex-wrap: wrap; padding-top: 5rem; padding-bottom: 5rem; }
+  .cta h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; color: #fff; margin-bottom: .75rem; }
+  .cta p { color: #c9cdd2; max-width: 30rem; line-height: 1.65; margin-bottom: 1.25rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .5rem; max-width: 34rem; }
+  .chip-d { font-size: .8rem; padding: .35rem .85rem; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; color: #e5e7ea; text-decoration: none; }
+  .chip-d.more { color: var(--color-wr-yellow); border-color: var(--color-wr-yellow); }
+  .cta-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+
+  @media (max-width: 1000px) {
+    .finder-grid { grid-template-columns: 1fr; gap: 2rem; }
     .cats { grid-template-columns: 1fr 1fr; }
-    .grid { grid-template-columns: 1fr 1fr; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .badge { right: 0; }
+    .about { grid-template-columns: 1fr; gap: 2.5rem; }
+    .about-photo { aspect-ratio: 4/3; order: -1; }
+    .industries, .steps { grid-template-columns: 1fr; }
   }
-  @media (max-width: 600px) { .cats, .grid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) {
+    .hero { min-height: 520px; }
+    .hero-inner { padding-top: 3.5rem; padding-bottom: 7.5rem; }
+    .finder { border-radius: 24px 24px 0 0; margin-top: -3.5rem; padding-top: 2.5rem; }
+    .tiles { grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .viewall { margin-left: 0; flex-basis: 100%; }
+    .cats { grid-template-columns: 1fr; }
+    .cat { aspect-ratio: 16/11; }
+    .strip-inner { flex-direction: column; gap: .3rem; font-size: .88rem; }
+  }
 </style>
+
+<script>
+  import { setDates } from '../lib/dates';
+  import { todayKey } from '../lib/availability';
+
+  // Finder tabs: "Popular" shows six picks, each category tab shows that category.
+  const tabs = document.querySelectorAll<HTMLElement>('[data-tab]');
+  const tiles = document.querySelectorAll<HTMLElement>('.tile');
+  const show = (t: string) => {
+    tiles.forEach((el) => el.classList.toggle('hidden', t === 'all' ? el.dataset.featured !== '1' : el.dataset.cat !== t));
+    tabs.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tab === t)));
+  };
+  tabs.forEach((b) => b.addEventListener('click', () => show(b.dataset.tab!)));
+  show('all');
+
+  // Finder form: save dates, then jump to the equipment list with prices and availability for those dates.
+  const s = document.getElementById('f-start') as HTMLInputElement;
+  const e = document.getElementById('f-end') as HTMLInputElement;
+  s.min = e.min = todayKey();
+  s.addEventListener('change', () => { if (s.value) e.min = s.value; if (e.value && e.value < s.value) e.value = s.value; });
+  document.getElementById('finder-form')!.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    if (s.value && e.value && e.value >= s.value) { setDates({ start: s.value, end: e.value }); location.href = '/equipment'; }
+  });
+</script>
