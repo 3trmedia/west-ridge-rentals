@@ -1,0 +1,57 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import Icon from '../../components/Icon.astro';
+import { categories, items } from '../../data/equipment';
+---
+<Layout title="Equipment Rentals | West Ridge Rentals" description="Browse dump trucks, excavators, skid steers, landscaping and compaction equipment available to rent across Utah.">
+  <div class="max-w-7xl mx-auto px-4 py-12">
+    <h1 class="text-5xl md:text-6xl">Our Equipment</h1>
+    <p class="text-wr-muted mt-3 max-w-2xl">Add anything you need to your request list. No payment now. We confirm availability and pricing with you first.</p>
+
+    <div class="mt-8 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+        <button class="chip" data-filter="all">All</button>
+        {categories.map((c) => <button class="chip" data-filter={c.slug}>{c.name}</button>)}
+      </div>
+      <input type="search" id="search" placeholder="Search equipment..." class="field md:max-w-xs" aria-label="Search equipment" />
+    </div>
+
+    <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="grid">
+      {items.map((i) => <ItemCard item={i} />)}
+    </div>
+    <div id="empty" class="hidden text-center py-16 text-wr-muted">
+      <Icon name="truck" class="w-12 h-12 mx-auto mb-3" />
+      <p>Nothing matches that search. <a href="/contact/" class="text-wr-yellow underline">Ask us</a>, we may be able to source it.</p>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .chip { padding: .45rem 1rem; border: 1px solid var(--color-wr-line); font-family: var(--font-display); text-transform: uppercase; letter-spacing: .06em; font-size: 1.05rem; color: var(--color-wr-text); transition: all .15s; }
+  .chip:hover { border-color: var(--color-wr-yellow); }
+  .chip[aria-pressed="true"] { background: var(--color-wr-yellow); color: var(--color-wr-black); border-color: var(--color-wr-yellow); }
+</style>
+
+<script>
+  const chips = document.querySelectorAll<HTMLElement>('[data-filter]');
+  const cards = document.querySelectorAll<HTMLElement>('[data-item-card]');
+  const search = document.getElementById('search') as HTMLInputElement;
+  const empty = document.getElementById('empty')!;
+  let cat = new URLSearchParams(location.search).get('category') || 'all';
+
+  const apply = () => {
+    const q = search.value.trim().toLowerCase();
+    let shown = 0;
+    cards.forEach((c) => {
+      const ok = (cat === 'all' || c.dataset.category === cat) && (!q || c.dataset.name!.includes(q));
+      c.classList.toggle('hidden', !ok);
+      if (ok) shown++;
+    });
+    chips.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === cat)));
+    empty.classList.toggle('hidden', shown > 0);
+  };
+  chips.forEach((b) => b.addEventListener('click', () => { cat = b.dataset.filter!; apply(); }));
+  search.addEventListener('input', apply);
+  apply();
+</script>

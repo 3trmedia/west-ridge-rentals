@@ -1,0 +1,42 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site } from '../data/site';
+const steps = [
+  ['Build your request list', 'Browse the fleet and tap "Add to request" on everything you need. Your list follows you around the site.'],
+  ['Pick dates and delivery', 'Choose your start and return dates, then pickup at our yard or delivery to your job site.'],
+  ['Send it over', `Add your contact info and submit. There is no payment and no commitment at this step.`],
+  ['We confirm', `${site.manager} checks availability, confirms pricing and delivery, and gets back to you by phone or email.`],
+  ['Pick up or get delivered', 'Sign the rental agreement, do a quick walk-around, and get to work.'],
+];
+const faqs = [
+  ['Do I pay when I submit a request?', 'No. A request is not a booking. We confirm availability and pricing with you first.'],
+  ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement. A deposit may apply. (Final requirements to be confirmed.)'],
+  ['Do you deliver?', 'Yes, to most of Utah. Delivery is quoted based on distance and equipment.'],
+  ['Can I rent with an operator?', 'Tell us in the notes on your request and we will let you know what is possible.'],
+];
+---
+<Layout title="How Renting Works | West Ridge Rentals" description="Renting from West Ridge is simple: build a request, pick dates, and our team confirms availability and delivery.">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-5xl md:text-6xl">How It Works</h1>
+    <ol class="mt-10 space-y-6">
+      {steps.map(([t, d], i) => (
+        <li class="flex gap-5 bg-wr-char border border-wr-line p-5">
+          <span class="font-display text-5xl text-wr-yellow leading-none">{i + 1}</span>
+          <div><h2 class="text-2xl">{t}</h2><p class="text-wr-muted mt-1">{d}</p></div>
+        </li>
+      ))}
+    </ol>
+
+    <h2 class="text-4xl mt-16 mb-6">Common questions</h2>
+    <div class="space-y-3">
+      {faqs.map(([q, a]) => (
+        <details class="bg-wr-char border border-wr-line p-4 group">
+          <summary class="cursor-pointer font-display text-xl uppercase tracking-wide text-wr-white">{q}</summary>
+          <p class="text-wr-muted mt-2">{a}</p>
+        </details>
+      ))}
+    </div>
+
+    <div class="mt-12 text-center"><a href="/equipment/" class="btn btn-primary">Start Your Request</a></div>
+  </div>
+</Layout>

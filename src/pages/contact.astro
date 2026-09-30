@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site } from '../data/site';
+---
+<Layout title="Contact | West Ridge Rentals" description="Questions about equipment, availability or delivery? Contact West Ridge Rentals in Utah.">
+  <div class="max-w-5xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-10">
+    <div>
+      <h1 class="text-5xl md:text-6xl">Contact Us</h1>
+      <p class="text-wr-muted mt-4">Questions about equipment, availability or delivery? Send a message or give us a call.</p>
+      <dl class="mt-8 space-y-4">
+        <div><dt class="label">Phone</dt><dd><a class="text-wr-white hover:text-wr-yellow" href={site.phoneHref}>{site.phone}</a></dd></div>
+        <div><dt class="label">Email</dt><dd><a class="text-wr-white hover:text-wr-yellow" href={`mailto:${site.email}`}>{site.email}</a></dd></div>
+        <div><dt class="label">Hours</dt><dd class="text-wr-white">{site.hours}</dd></div>
+        <div><dt class="label">Yard</dt><dd class="text-wr-white">{site.address}</dd></div>
+      </dl>
+      <p class="mt-8 text-wr-muted">Ready to rent? <a href="/equipment/" class="text-wr-yellow underline">Browse equipment</a> and send a request.</p>
+    </div>
+
+    <form id="contact" class="bg-wr-char border border-wr-line p-6 space-y-4">
+      <div><label class="label" for="c-name">Name</label><input class="field" id="c-name" required autocomplete="name" /></div>
+      <div><label class="label" for="c-email">Email</label><input class="field" id="c-email" type="email" required autocomplete="email" /></div>
+      <div><label class="label" for="c-phone">Phone (optional)</label><input class="field" id="c-phone" type="tel" autocomplete="tel" /></div>
+      <div><label class="label" for="c-msg">Message</label><textarea class="field" id="c-msg" rows="5" required></textarea></div>
+      <input type="checkbox" id="c-bot" class="hidden" tabindex="-1" autocomplete="off" />
+      <p id="c-status" class="hidden text-sm"></p>
+      <button class="btn btn-primary w-full" type="submit" id="c-submit">Send Message</button>
+    </form>
+  </div>
+</Layout>
+
+<script define:vars={{ key: site.web3formsKey, siteName: site.name }}>
+  const $ = (id) => document.getElementById(id);
+  $('contact').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const st = $('c-status'), btn = $('c-submit');
+    btn.disabled = true; btn.textContent = 'Sending...'; st.classList.add('hidden');
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ access_key: key, subject: `Website message from ${$('c-name').value}`, from_name: siteName,
+          name: $('c-name').value, email: $('c-email').value, phone: $('c-phone').value, message: $('c-msg').value, botcheck: $('c-bot').checked }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error();
+      $('contact').reset(); st.textContent = 'Thanks! We\'ll be in touch shortly.'; st.className = 'text-sm text-wr-yellow';
+    } catch { st.textContent = 'Something went wrong. Please try again or call us.'; st.className = 'text-sm text-wr-orange'; }
+    btn.disabled = false; btn.textContent = 'Send Message';
+  });
+</script>

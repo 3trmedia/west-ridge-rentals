@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+interface Props { title: string; description: string; noindex?: boolean }
+const { title, description, noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: site.name,
+  description: site.tagline,
+  telephone: site.phone,
+  email: site.email,
+  areaServed: { '@type': 'State', name: 'Utah' },
+};
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body class="min-h-screen flex flex-col bg-wr-black">
+    <Header />
+    <main class="flex-1"><slot /></main>
+    <Footer />
+    <script>
+      // Shared "Add to request" behavior for every button marked [data-add].
+      import { addToList, getList } from '../lib/request-list';
+      const mark = (btn: HTMLElement) => {
+        const label = btn.querySelector('[data-add-label]');
+        if (label) label.textContent = 'Added ✓';
+        setTimeout(() => {
+          const n = getList().find((e) => e.slug === btn.dataset.slug)?.qty ?? 0;
+          if (label) label.textContent = n > 1 ? `In list (${n})` : 'In list';
+        }, 900);
+      };
+      document.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-add]');
+        if (!btn) return;
+        addToList(btn.dataset.slug!, btn.dataset.name!);
+        mark(btn);
+      });
+      const inList = new Set(getList().map((e) => e.slug));
+      document.querySelectorAll<HTMLElement>('[data-add]').forEach((btn) => {
+        if (inList.has(btn.dataset.slug!)) {
+          const label = btn.querySelector('[data-add-label]');
+          if (label) label.textContent = 'In list';
+        }
+      });
+    </script>
+  </body>
+</html>

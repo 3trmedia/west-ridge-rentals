@@ -1,0 +1,85 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import ItemCard from '../components/ItemCard.astro';
+import { categories, items } from '../data/equipment';
+import { site } from '../data/site';
+const featured = [items[0], items[3], items[5], items[7]];
+const steps = [
+  ['1', 'Pick your equipment', 'Browse the fleet and add what you need to your request list.'],
+  ['2', 'Choose your dates', 'Tell us when you need it and whether you want delivery or pickup.'],
+  ['3', 'We confirm', `${site.manager} reviews availability and gets back to you, usually the same business day.`],
+];
+---
+<Layout title="West Ridge Rentals | Truck & Equipment Rentals in Utah" description="Rent dump trucks, excavators, skid steers and landscaping equipment across Utah. Request your rental online and we'll confirm availability fast.">
+  <section class="relative overflow-hidden border-b border-wr-line">
+    <div class="absolute inset-0 bg-gradient-to-br from-wr-steel via-wr-char to-wr-black"></div>
+    <div class="absolute -right-24 -top-24 w-[32rem] h-[32rem] rounded-full bg-wr-yellow/10 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-4 py-20 md:py-28 grid md:grid-cols-5 gap-10 items-center">
+      <div class="md:col-span-3">
+        <p class="font-display uppercase tracking-[.25em] text-wr-yellow mb-4">Serving all of Utah</p>
+        <h1 class="text-5xl md:text-7xl">Equipment that's ready when your job is.</h1>
+        <p class="mt-6 text-lg text-wr-muted max-w-xl">Trucks, excavators and landscaping equipment for contractors and businesses. Build a request in minutes and our team handles the rest.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/equipment/" class="btn btn-primary">Browse Equipment</a>
+          <a href={site.phoneHref} class="btn btn-ghost">Call {site.phone}</a>
+        </div>
+      </div>
+      <div class="md:col-span-2 hidden md:grid grid-cols-2 gap-3 text-wr-yellow/70">
+        {categories.map((c) => (
+          <div class="aspect-square bg-wr-black/40 border border-wr-line grid place-items-center"><Icon name={c.icon} class="w-20 h-20" /></div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 py-16">
+    <h2 class="text-4xl mb-8">Rent by category</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {categories.map((c) => (
+        <a href={`/equipment/?category=${c.slug}`} class="group p-6 bg-wr-char border border-wr-line hover:border-wr-yellow transition-colors">
+          <span class="text-wr-yellow"><Icon name={c.icon} class="w-10 h-10" /></span>
+          <h3 class="text-2xl mt-4 group-hover:text-wr-yellow">{c.name}</h3>
+          <p class="text-sm text-wr-muted mt-2">{c.blurb}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="bg-wr-char border-y border-wr-line">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+      <h2 class="text-4xl mb-10">How it works</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        {steps.map(([n, t, d]) => (
+          <div class="flex gap-4">
+            <span class="font-display text-6xl text-wr-yellow leading-none">{n}</span>
+            <div><h3 class="text-2xl">{t}</h3><p class="text-wr-muted mt-2">{d}</p></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 py-16">
+    <div class="flex items-end justify-between mb-8">
+      <h2 class="text-4xl">Popular rentals</h2>
+      <a href="/equipment/" class="text-wr-yellow font-display uppercase tracking-wider text-lg hover:underline">View all &rarr;</a>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {featured.map((i) => <ItemCard item={i} />)}
+    </div>
+  </section>
+
+  <section class="bg-wr-yellow text-wr-black">
+    <div class="max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <h2 class="text-4xl !text-wr-black">Need it by Monday?</h2>
+        <p class="font-medium">Send a request now or give us a call and we'll get you rolling.</p>
+      </div>
+      <div class="flex gap-3 flex-wrap">
+        <a href="/request/" class="btn bg-wr-black text-wr-yellow hover:bg-wr-char">Start a Request</a>
+        <a href={site.phoneHref} class="btn border-2 border-wr-black">Call Now</a>
+      </div>
+    </div>
+  </section>
+</Layout>

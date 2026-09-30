@@ -1,0 +1,25 @@
+---
+import Icon from './Icon.astro';
+import { categories, catName, type Item } from '../data/equipment';
+const { item } = Astro.props as { item: Item };
+const icon = categories.find((c) => c.slug === item.category)?.icon ?? 'truck';
+---
+<article class="group bg-wr-char border border-wr-line hover:border-wr-yellow transition-colors flex flex-col" data-item-card data-name={item.name.toLowerCase()} data-category={item.category}>
+  <a href={`/equipment/${item.slug}/`} class="block">
+    <div class="aspect-[4/3] bg-wr-steel flex flex-col items-center justify-center gap-2 text-wr-muted group-hover:text-wr-yellow transition-colors">
+      <Icon name={icon} class="w-14 h-14" />
+      <span class="text-xs uppercase tracking-widest">Photo coming soon</span>
+    </div>
+  </a>
+  <div class="p-5 flex flex-col gap-3 flex-1">
+    <p class="text-xs uppercase tracking-widest text-wr-yellow">{catName(item.category)}</p>
+    <h3 class="text-2xl"><a href={`/equipment/${item.slug}/`}>{item.name}</a></h3>
+    <p class="text-sm text-wr-muted flex-1">{item.blurb}</p>
+    <div class="flex items-center justify-between gap-3 pt-2">
+      <span class="text-sm text-wr-text">{item.rate}</span>
+      <button type="button" class="btn btn-primary !py-2 !px-4 !text-base" data-add data-slug={item.slug} data-name={item.name}>
+        <span data-add-label>Add to request</span>
+      </button>
+    </div>
+  </div>
+</article>

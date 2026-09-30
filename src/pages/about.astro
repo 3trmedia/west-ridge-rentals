@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site } from '../data/site';
+---
+<Layout title="About | West Ridge Rentals" description="West Ridge Rentals supplies trucks, excavation and landscaping equipment to Utah businesses and contractors.">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-5xl md:text-6xl">About West Ridge</h1>
+    <div class="mt-8 space-y-5 text-lg text-wr-text">
+      <p>West Ridge Rentals puts well-maintained trucks, excavation and landscaping equipment in the hands of Utah's contractors and businesses, without the runaround.</p>
+      <p>Tell us what you need and when. {site.manager} and the team handle availability, delivery and paperwork so you can stay focused on the job.</p>
+      <p class="text-wr-muted">[Placeholder: company story, years in business, service area and team photo go here once provided.]</p>
+    </div>
+    <div class="mt-10 grid sm:grid-cols-3 gap-4">
+      {[['Statewide', 'Serving businesses across Utah'], ['Maintained', 'Inspected between every rental'], ['Responsive', 'Real people, fast answers']].map(([t, d]) => (
+        <div class="bg-wr-char border border-wr-line p-5"><h2 class="text-2xl text-wr-yellow">{t}</h2><p class="text-wr-muted mt-1">{d}</p></div>
+      ))}
+    </div>
+    <a href="/contact/" class="btn btn-primary mt-10">Get in Touch</a>
+  </div>
+</Layout>

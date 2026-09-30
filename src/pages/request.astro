@@ -1,0 +1,188 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site } from '../data/site';
+---
+<Layout title="Request a Rental | West Ridge Rentals" description="Build your equipment rental request, choose dates and delivery, and send it to our team for confirmation." noindex>
+  <div class="max-w-6xl mx-auto px-4 py-12">
+    <h1 class="text-5xl md:text-6xl">Request a Rental</h1>
+    <p class="text-wr-muted mt-3">No payment now. {site.manager} will confirm availability, pricing and delivery details with you.</p>
+
+    <!-- Empty state -->
+    <div id="empty" class="hidden mt-10 border border-dashed border-wr-line p-12 text-center">
+      <p class="font-display text-3xl text-wr-white">Your request list is empty</p>
+      <p class="text-wr-muted mt-2">Add the equipment you need and come back here to send it over.</p>
+      <a href="/equipment/" class="btn btn-primary mt-6">Browse Equipment</a>
+    </div>
+
+    <!-- Success state -->
+    <div id="success" class="hidden mt-10 border border-wr-yellow bg-wr-char p-10 text-center">
+      <p class="font-display text-4xl text-wr-yellow">Request sent</p>
+      <p class="text-wr-text mt-3">Thanks, we've got it. {site.manager} will reach out shortly to confirm. Need it sooner? Call <a class="text-wr-yellow" href={site.phoneHref}>{site.phone}</a>.</p>
+      <a href="/equipment/" class="btn btn-ghost mt-6">Back to Equipment</a>
+    </div>
+
+    <form id="form" class="hidden mt-10 grid lg:grid-cols-5 gap-8" novalidate>
+      <!-- Left: items + dates + delivery -->
+      <div class="lg:col-span-3 space-y-8">
+        <section class="bg-wr-char border border-wr-line p-6">
+          <h2 class="text-2xl mb-4">1. Your equipment</h2>
+          <ul id="items" class="divide-y divide-wr-line"></ul>
+          <a href="/equipment/" class="inline-block mt-4 text-wr-yellow text-sm hover:underline">+ Add more equipment</a>
+        </section>
+
+        <section class="bg-wr-char border border-wr-line p-6">
+          <h2 class="text-2xl mb-4">2. When do you need it?</h2>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label" for="start">Start date</label><input class="field" type="date" id="start" required /></div>
+            <div><label class="label" for="end">Return date</label><input class="field" type="date" id="end" required /></div>
+          </div>
+          <p id="duration" class="mt-3 text-sm text-wr-yellow min-h-5"></p>
+          <p id="date-error" class="hidden mt-1 text-sm text-wr-orange"></p>
+        </section>
+
+        <section class="bg-wr-char border border-wr-line p-6">
+          <h2 class="text-2xl mb-4">3. Delivery or pickup</h2>
+          <div class="grid sm:grid-cols-2 gap-3" role="radiogroup">
+            <label class="opt"><input type="radio" name="method" value="Pickup" checked /><span><strong>I'll pick it up</strong><small>From our yard</small></span></label>
+            <label class="opt"><input type="radio" name="method" value="Delivery" /><span><strong>Deliver to my site</strong><small>We'll quote delivery</small></span></label>
+          </div>
+          <div id="address-wrap" class="hidden mt-4">
+            <label class="label" for="address">Job site address</label>
+            <input class="field" id="address" placeholder="Street, city, UT" autocomplete="street-address" />
+          </div>
+        </section>
+      </div>
+
+      <!-- Right: contact -->
+      <div class="lg:col-span-2">
+        <section class="bg-wr-char border border-wr-line p-6 lg:sticky lg:top-24 space-y-4">
+          <h2 class="text-2xl">4. Your info</h2>
+          <div><label class="label" for="name">Name</label><input class="field" id="name" autocomplete="name" required /></div>
+          <div><label class="label" for="company">Company</label><input class="field" id="company" autocomplete="organization" /></div>
+          <div><label class="label" for="phone">Phone</label><input class="field" id="phone" type="tel" autocomplete="tel" required /></div>
+          <div><label class="label" for="email">Email</label><input class="field" id="email" type="email" autocomplete="email" required /></div>
+          <div><label class="label" for="notes">Anything we should know?</label><textarea class="field" id="notes" rows="3" placeholder="Job details, operator needed, attachments..."></textarea></div>
+          <input type="checkbox" id="botcheck" class="hidden" tabindex="-1" autocomplete="off" />
+          <p id="form-error" class="hidden text-sm text-wr-orange"></p>
+          <button type="submit" id="submit" class="btn btn-primary w-full">Send Request</button>
+          <p class="text-xs text-wr-muted">By sending, you agree we may contact you about this request. See our <a class="underline" href="/privacy/">Privacy Policy</a>.</p>
+        </section>
+      </div>
+    </form>
+  </div>
+</Layout>
+
+<style is:global>
+  .opt { display: flex; gap: .75rem; align-items: flex-start; padding: .9rem 1rem; border: 1px solid var(--color-wr-line); cursor: pointer; transition: border-color .15s; }
+  .opt:has(input:checked) { border-color: var(--color-wr-yellow); background: rgb(245 179 1 / .08); }
+  .opt input { accent-color: var(--color-wr-yellow); margin-top: .3rem; }
+  .opt small { display: block; color: var(--color-wr-muted); }
+  .qty-btn { width: 2rem; height: 2rem; border: 1px solid var(--color-wr-line); color: var(--color-wr-white); }
+  .qty-btn:hover { border-color: var(--color-wr-yellow); color: var(--color-wr-yellow); }
+</style>
+
+<script define:vars={{ key: site.web3formsKey, siteName: site.name }}>
+  // define:vars inlines the values, so this script is plain JS (no imports).
+  const KEY = 'wr-request-list';
+  const $ = (id) => document.getElementById(id);
+  const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
+  const write = (l) => { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch {} window.dispatchEvent(new CustomEvent('wr-list-changed')); };
+
+  const form = $('form'), empty = $('empty'), success = $('success'), itemsEl = $('items');
+  const start = $('start'), end = $('end');
+  const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  start.min = end.min = iso(new Date());
+
+  const render = () => {
+    const list = read();
+    empty.classList.toggle('hidden', list.length > 0);
+    form.classList.toggle('hidden', list.length === 0);
+    itemsEl.innerHTML = '';
+    list.forEach((e, i) => {
+      const li = document.createElement('li');
+      li.className = 'flex items-center justify-between gap-3 py-3';
+      li.innerHTML = `<span class="text-wr-white font-medium"></span>
+        <span class="flex items-center gap-2">
+          <button type="button" class="qty-btn" data-act="dec" aria-label="Decrease">&minus;</button>
+          <span class="w-6 text-center"></span>
+          <button type="button" class="qty-btn" data-act="inc" aria-label="Increase">+</button>
+          <button type="button" class="ml-2 text-sm text-wr-muted hover:text-wr-orange" data-act="rm">Remove</button>
+        </span>`;
+      li.firstElementChild.textContent = e.name;
+      li.querySelector('.w-6').textContent = e.qty;
+      li.addEventListener('click', (ev) => {
+        const act = ev.target.dataset && ev.target.dataset.act;
+        if (!act) return;
+        const l = read();
+        if (act === 'inc') l[i].qty += 1;
+        if (act === 'dec') l[i].qty = Math.max(1, l[i].qty - 1);
+        if (act === 'rm') l.splice(i, 1);
+        write(l); render();
+      });
+      itemsEl.appendChild(li);
+    });
+  };
+
+  const dateCheck = () => {
+    const err = $('date-error'), dur = $('duration');
+    err.classList.add('hidden'); dur.textContent = '';
+    if (start.value) end.min = start.value;
+    if (start.value && end.value) {
+      const days = Math.round((new Date(end.value) - new Date(start.value)) / 86400000) + 1;
+      if (days < 1) { err.textContent = 'Return date must be on or after the start date.'; err.classList.remove('hidden'); return false; }
+      dur.textContent = `${days} rental day${days === 1 ? '' : 's'}`;
+    }
+    return true;
+  };
+  start.addEventListener('change', () => { if (end.value && end.value < start.value) end.value = start.value; dateCheck(); });
+  end.addEventListener('change', dateCheck);
+
+  document.querySelectorAll('input[name="method"]').forEach((r) => r.addEventListener('change', () => {
+    $('address-wrap').classList.toggle('hidden', r.value !== 'Delivery' || !r.checked);
+  }));
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const fe = $('form-error'); fe.classList.add('hidden');
+    const fail = (m) => { fe.textContent = m; fe.classList.remove('hidden'); };
+    const list = read();
+    const method = document.querySelector('input[name="method"]:checked').value;
+    if (!list.length) return fail('Add at least one piece of equipment.');
+    if (!start.value || !end.value || !dateCheck()) return fail('Please choose valid start and return dates.');
+    if (method === 'Delivery' && !$('address').value.trim()) return fail('Please enter the job site address for delivery.');
+    if (!$('name').value.trim() || !$('phone').value.trim() || !$('email').validity.valid || !$('email').value) return fail('Please add your name, phone and a valid email.');
+
+    const days = Math.round((new Date(end.value) - new Date(start.value)) / 86400000) + 1;
+    const message = [
+      'EQUIPMENT REQUESTED', ...list.map((e) => `  - ${e.name} x${e.qty}`), '',
+      `DATES: ${start.value} to ${end.value} (${days} day${days === 1 ? '' : 's'})`,
+      `METHOD: ${method}${method === 'Delivery' ? ' to ' + $('address').value.trim() : ''}`, '',
+      `COMPANY: ${$('company').value.trim() || 'n/a'}`,
+      `NOTES: ${$('notes').value.trim() || 'none'}`,
+    ].join('\n');
+
+    const btn = $('submit'); btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: key,
+          subject: `Rental request from ${$('name').value.trim()}${$('company').value.trim() ? ' (' + $('company').value.trim() + ')' : ''}`,
+          from_name: siteName,
+          name: $('name').value.trim(), email: $('email').value.trim(), phone: $('phone').value.trim(),
+          message, botcheck: $('botcheck').checked,
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'failed');
+      write([]); form.classList.add('hidden'); success.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {
+      fail('Something went wrong sending your request. Please try again or call us.');
+      btn.disabled = false; btn.textContent = 'Send Request';
+    }
+  });
+
+  render();
+</script>
