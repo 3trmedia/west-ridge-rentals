@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import PageHero from '../components/PageHero.astro';
 import { categories, items } from '../data/equipment';
 import { site, featuredCities } from '../data/site';
+const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
 ---
 <Layout title="Request a Rental | West Ridge Rentals" description="Build your equipment rental request, choose dates and delivery, and send it to our team for confirmation." noindex>
   <PageHero eyebrow="Request a rental" kicker="Free rental quote in Utah" title="Get a rental quote" intro={`Pick your equipment and dates and we'll get back to you within one business day. No payment now. ${site.manager} confirms availability, pricing and delivery with you first.`} />
@@ -16,7 +17,7 @@ import { site, featuredCities } from '../data/site';
           <a href="/equipment" class="btn-outline" style="margin-top: 1.5rem;">Back to Equipment</a>
         </div>
 
-        <form id="form" novalidate data-key={site.web3formsKey} data-site={site.name}>
+        <form id="form" novalidate data-key={site.web3formsKey} data-site={site.name} data-rates={JSON.stringify(rateMap)}>
           <h2 class="form-title">Tell us what you need</h2>
 
           <div class="block">
@@ -43,6 +44,7 @@ import { site, featuredCities } from '../data/site';
           <p id="duration" class="duration"></p>
           <p id="date-error" class="hidden err"></p>
           <div id="avail-warn" class="hidden warn" role="alert"></div>
+          <div id="estimate" class="hidden est" aria-live="polite"></div>
 
           <div class="block">
             <span class="label">Delivery or pickup *</span>
@@ -115,6 +117,15 @@ import { site, featuredCities } from '../data/site';
   .hint { font-size: .9rem; color: var(--color-wr-muted); margin-bottom: .75rem; }
   .hint a, .fine a, .info a.more { color: #8A5D00; text-decoration: underline; }
   .duration { color: #8A5D00; font-weight: 600; min-height: 1.2rem; margin: -.5rem 0 1rem; font-size: .9rem; }
+  .row-rate { display: block; font-weight: 400; color: var(--color-wr-muted); font-size: .8rem; }
+  .est { background: #fff; border: 1px solid var(--color-wr-border); border-left: 4px solid var(--color-wr-yellow); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+  .est-title { font-family: var(--font-heading); font-size: .8rem; letter-spacing: .15em; text-transform: uppercase; color: #8A5D00; margin-bottom: .5rem; }
+  .est ul { list-style: none; padding: 0; margin: 0 0 .5rem; display: grid; gap: .3rem; font-size: .92rem; }
+  .est li { display: flex; justify-content: space-between; gap: 1rem; }
+  .est-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--color-wr-border); padding-top: .6rem; }
+  .est-total span { font-family: var(--font-heading); text-transform: uppercase; letter-spacing: .1em; }
+  .est-total strong { font-family: var(--font-heading); font-size: 1.9rem; line-height: 1; }
+  .est-note { font-size: .75rem; color: var(--color-wr-muted); margin-top: .5rem; line-height: 1.5; }
   .err { color: #b3261e; font-size: .9rem; margin-bottom: 1rem; }
   .warn { background: #FFF4E5; border: 1px solid #E8A33D; border-left: 4px solid #E8A33D; padding: .9rem 1.1rem; margin-bottom: 1.25rem; font-size: .92rem; color: #4a3200; }
   .warn ul { margin: .5rem 0 0 1.1rem; list-style: disc; display: grid; gap: .3rem; }
@@ -142,6 +153,7 @@ import { site, featuredCities } from '../data/site';
 
 <script>
   import { loadAvailability, conflicts, nextFree, fmtRange, fmt, daysBetween } from '../lib/availability';
+  import { estimate, money } from '../lib/pricing';
   const KEY = 'wr-request-list';
   const $ = (id) => document.getElementById(id);
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
@@ -151,6 +163,7 @@ import { site, featuredCities } from '../data/site';
   const start = $('start'), end = $('end');
   const key = form.dataset.key, siteName = form.dataset.site;
   let avail = { ok: false, bookings: {} };
+  const rates = JSON.parse(form.dataset.rates || '{}');
   const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   start.min = end.min = iso(new Date());
 
@@ -168,6 +181,7 @@ import { site, featuredCities } from '../data/site';
           <button type="button" class="rm" data-act="rm">Remove</button>
         </span>`;
       li.firstElementChild.textContent = e.name;
+      if (rates[e.slug]) { const r = document.createElement('small'); r.className = 'row-rate'; r.textContent = money(rates[e.slug][0]) + '/day'; li.firstElementChild.appendChild(r); }
       li.querySelector('.ctl > span').textContent = e.qty;
       li.addEventListener('click', (ev) => {
         const act = ev.target.dataset && ev.target.dataset.act;
@@ -176,7 +190,7 @@ import { site, featuredCities } from '../data/site';
         if (act === 'inc') l[i].qty += 1;
         if (act === 'dec') l[i].qty = Math.max(1, l[i].qty - 1);
         if (act === 'rm') l.splice(i, 1);
-        write(l); render(); checkConflicts();
+        write(l); render(); checkConflicts(); renderEstimate();
       });
       itemsEl.appendChild(li);
     });
@@ -187,8 +201,25 @@ import { site, featuredCities } from '../data/site';
     const name = picker.options[picker.selectedIndex].text;
     const l = read(); const hit = l.find((e) => e.slug === picker.value);
     if (hit) hit.qty += 1; else l.push({ slug: picker.value, name, qty: 1 });
-    write(l); picker.value = ''; render(); checkConflicts();
+    write(l); picker.value = ''; render(); checkConflicts(); renderEstimate();
   });
+
+  // Live price estimate from the listed rates (cheapest day/week/month mix), before delivery, fuel and tax.
+  const rentalDays = () => (start.value && end.value && end.value >= start.value ? daysBetween(start.value, end.value) + 1 : 0);
+  const priceLines = () => {
+    const days = rentalDays();
+    if (!days) return null;
+    const lines = read().filter((e) => rates[e.slug]).map((e) => ({ name: e.name, qty: e.qty, cost: estimate(rates[e.slug], days) * e.qty }));
+    return { days, lines, total: lines.reduce((n, l) => n + l.cost, 0) };
+  };
+  const renderEstimate = () => {
+    const box = $('estimate'); const p = priceLines();
+    if (!p || !p.lines.length) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+    const rows = p.lines.map((l) => `<li><span></span><b>${money(l.cost)}</b></li>`).join('');
+    box.innerHTML = `<p class="est-title">Estimated total for ${p.days} day${p.days === 1 ? '' : 's'}</p><ul>${rows}</ul><p class="est-total"><span>Estimate</span><strong>${money(p.total)}</strong></p><p class="est-note">Based on our listed rates, before delivery, fuel and tax. Weekly and monthly rates are applied automatically. We confirm your final total before anything is booked.</p>`;
+    box.querySelectorAll('li span').forEach((el, i) => { el.textContent = p.lines[i].name + (p.lines[i].qty > 1 ? ' x' + p.lines[i].qty : ''); });
+    box.classList.remove('hidden');
+  };
 
   // Equipment already booked for the chosen dates (from Aaron's calendar). Returns true if there are none.
   const checkConflicts = () => {
@@ -215,6 +246,7 @@ import { site, featuredCities } from '../data/site';
       if (days < 1) { err.textContent = 'Return date must be on or after the start date.'; err.classList.remove('hidden'); return false; }
       dur.textContent = `${days} rental day${days === 1 ? '' : 's'}`;
     }
+    renderEstimate();
     return checkConflicts() || true;
   };
   start.addEventListener('change', () => { if (end.value && end.value < start.value) end.value = start.value; dateCheck(); });
@@ -240,6 +272,7 @@ import { site, featuredCities } from '../data/site';
     const message = [
       'EQUIPMENT REQUESTED', ...list.map((e) => `  - ${e.name} x${e.qty}`), '',
       `DATES: ${start.value} to ${end.value} (${days} day${days === 1 ? '' : 's'})`,
+      ...(priceLines() ? [`ESTIMATE (listed rates, before delivery/fuel/tax): ${money(priceLines().total)}`, ...priceLines().lines.map((l) => `  - ${l.name} x${l.qty}: ${money(l.cost)}`)] : []),
       `METHOD: ${method}${method === 'Delivery' ? ' to ' + $('address').value.trim() : ''}`, '',
       `COMPANY: ${$('company').value.trim() || 'n/a'}`,
       `NOTES: ${$('notes').value.trim() || 'none'}`,
@@ -269,5 +302,6 @@ import { site, featuredCities } from '../data/site';
   });
 
   render();
+  renderEstimate();
   loadAvailability().then((a) => { avail = a; checkConflicts(); });
 </script>

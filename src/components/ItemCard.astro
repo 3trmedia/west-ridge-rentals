@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { categories, catName, type Item } from '../data/equipment';
+import { money } from '../lib/pricing';
 const { item } = Astro.props as { item: Item };
 const icon = categories.find((c) => c.slug === item.category)?.icon ?? 'truck';
 const href = `/equipment/${item.category}/${item.slug}`;
@@ -16,7 +17,7 @@ const href = `/equipment/${item.category}/${item.slug}`;
     <h3><a href={href}>{item.name}</a></h3>
     <p class="meta">{item.blurb}</p>
     <div class="foot">
-      <span class="rate">{item.rate}</span>
+      <div class="price"><span><strong>{money(item.rates[0])}</strong>/day</span><small>{money(item.rates[1])}/wk &middot; {money(item.rates[2])}/mo</small></div>
       <button type="button" class="btn-primary add" data-add data-slug={item.slug} data-name={item.name}><span data-add-label>Add to request</span></button>
     </div>
   </div>
@@ -35,6 +36,8 @@ const href = `/equipment/${item.category}/${item.slug}`;
   h3 a:hover { color: #8A5D00; }
   .meta { font-size: .85rem; color: var(--color-wr-muted); flex: 1; line-height: 1.5; }
   .foot { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding-top: .5rem; }
-  .rate { font-size: .8rem; color: #444; }
+  .price { display: flex; flex-direction: column; line-height: 1.25; font-size: .8rem; color: #444; }
+  .price strong { font-family: var(--font-heading); font-size: 1.4rem; color: #121212; }
+  .price small { color: var(--color-wr-muted); font-size: .72rem; }
   .add { padding: .55rem 1rem; font-size: .75rem; }
 </style>

@@ -7,7 +7,7 @@ export type Category = {
 };
 export type Item = {
   slug: string; book: string; name: string; category: string; blurb: string;
-  specs: [string, string][]; features: string[]; delivery: boolean; rate: string;
+  specs: [string, string][]; features: string[]; delivery: boolean; rates: [number, number, number]; // [day, week, month]
 };
 
 // PLACEHOLDER COPY: category page content is generic until West Ridge confirms real details.
@@ -50,33 +50,33 @@ export const categories: Category[] = [
     faqs: [['Which compactor for pavers?', 'A plate compactor is typical. Tell us the job and we’ll help.'], ['Can I pick one up?', 'Plate compactors fit in a truck bed. Rollers usually need a trailer.'], ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement.'], ['Is fuel included?', 'Equipment goes out ready to run. Return it with a full tank.'], ['Can I rent by the day?', 'Yes.'], ['Do you deliver?', 'Yes, delivery is quoted by distance.']] },
 ];
 
-const CALL = 'Call for quote';
+// PLACEHOLDER RATES (USD): every item's [day, week, month] price is sample data until West Ridge supplies real rates.
 
 export const items: Item[] = [
   { slug: 'dump-truck-10yd', book: 'Dump Truck', name: '10 Yard Dump Truck', category: 'trucks', blurb: 'Everyday hauler for gravel, soil and demo debris.',
-    specs: [['Capacity', '10 cubic yards'], ['Payload', '~15 tons'], ['License', 'CDL may be required']], features: ['Tandem axle', 'Tarp system', 'Backup camera'], delivery: true, rate: CALL },
+    specs: [['Capacity', '10 cubic yards'], ['Payload', '~15 tons'], ['License', 'CDL may be required']], features: ['Tandem axle', 'Tarp system', 'Backup camera'], delivery: true, rates: [350, 1400, 4200] },
   { slug: 'flatbed-trailer-20', book: 'Equipment Trailer', name: '20 ft Equipment Trailer', category: 'trucks', blurb: 'Tag-along trailer for moving skid steers and mini excavators.',
-    specs: [['Length', '20 ft'], ['Capacity', '14,000 lbs'], ['Hitch', 'Ball or pintle']], features: ['Fold-down ramps', 'Electric brakes', 'D-ring tie-downs'], delivery: true, rate: CALL },
+    specs: [['Length', '20 ft'], ['Capacity', '14,000 lbs'], ['Hitch', 'Ball or pintle']], features: ['Fold-down ramps', 'Electric brakes', 'D-ring tie-downs'], delivery: true, rates: [95, 380, 1140] },
   { slug: 'flatbed-truck', book: 'Flatbed Truck', name: 'Flatbed Truck', category: 'trucks', blurb: 'Haul pallets, materials and equipment across Utah.',
-    specs: [['Bed', '20 ft'], ['Payload', '~10,000 lbs'], ['License', 'Standard (verify)']], features: ['Stake pockets', 'Ratchet straps available'], delivery: true, rate: CALL },
+    specs: [['Bed', '20 ft'], ['Payload', '~10,000 lbs'], ['License', 'Standard (verify)']], features: ['Stake pockets', 'Ratchet straps available'], delivery: true, rates: [220, 880, 2640] },
   { slug: 'mini-excavator-35', book: 'Mini Excavator', name: 'Mini Excavator (3.5 ton)', category: 'excavation', blurb: 'Tight-access digging for trenches, footings and utilities.',
-    specs: [['Operating weight', '~7,700 lbs'], ['Dig depth', '~10 ft'], ['Bucket', '24 in standard']], features: ['Zero tail swing', 'Thumb available', 'Rubber tracks'], delivery: true, rate: CALL },
+    specs: [['Operating weight', '~7,700 lbs'], ['Dig depth', '~10 ft'], ['Bucket', '24 in standard']], features: ['Zero tail swing', 'Thumb available', 'Rubber tracks'], delivery: true, rates: [300, 1200, 3600] },
   { slug: 'excavator-20t', book: '20 Ton Excavator', name: 'Excavator (20 ton)', category: 'excavation', blurb: 'Full-size digging power for large sites and heavy jobs.',
-    specs: [['Operating weight', '~45,000 lbs'], ['Dig depth', '~22 ft'], ['Bucket', '36 in standard']], features: ['Hydraulic thumb', 'A/C cab', 'Quick coupler'], delivery: true, rate: CALL },
+    specs: [['Operating weight', '~45,000 lbs'], ['Dig depth', '~22 ft'], ['Bucket', '36 in standard']], features: ['Hydraulic thumb', 'A/C cab', 'Quick coupler'], delivery: true, rates: [750, 3000, 9000] },
   { slug: 'skid-steer', book: 'Skid Steer', name: 'Skid Steer Loader', category: 'excavation', blurb: 'The all-purpose workhorse for loading, grading and clearing.',
-    specs: [['Rated capacity', '~2,200 lbs'], ['Lift height', '~10 ft'], ['Attachments', 'Bucket, forks, auger']], features: ['Enclosed cab', 'Quick-attach', 'High-flow option'], delivery: true, rate: CALL },
+    specs: [['Rated capacity', '~2,200 lbs'], ['Lift height', '~10 ft'], ['Attachments', 'Bucket, forks, auger']], features: ['Enclosed cab', 'Quick-attach', 'High-flow option'], delivery: true, rates: [300, 1200, 3600] },
   { slug: 'backhoe-loader', book: 'Backhoe', name: 'Backhoe Loader', category: 'excavation', blurb: 'Dig and load with one machine.',
-    specs: [['Dig depth', '~14 ft'], ['Loader bucket', '1 cubic yard'], ['Drive', '4WD']], features: ['Extendable dipper', 'Enclosed cab'], delivery: true, rate: CALL },
+    specs: [['Dig depth', '~14 ft'], ['Loader bucket', '1 cubic yard'], ['Drive', '4WD']], features: ['Extendable dipper', 'Enclosed cab'], delivery: true, rates: [380, 1520, 4560] },
   { slug: 'compact-track-loader', book: 'Track Loader', name: 'Compact Track Loader', category: 'landscaping', blurb: 'Low ground pressure for finished lawns and soft soil.',
-    specs: [['Rated capacity', '~2,700 lbs'], ['Ground pressure', 'Low'], ['Attachments', 'Bucket, forks, grapple']], features: ['Rubber tracks', 'Enclosed cab'], delivery: true, rate: CALL },
+    specs: [['Rated capacity', '~2,700 lbs'], ['Ground pressure', 'Low'], ['Attachments', 'Bucket, forks, grapple']], features: ['Rubber tracks', 'Enclosed cab'], delivery: true, rates: [350, 1400, 4200] },
   { slug: 'stump-grinder', book: 'Stump Grinder', name: 'Stump Grinder', category: 'landscaping', blurb: 'Clear stumps fast without digging them out.',
-    specs: [['Cutting depth', '~16 in'], ['Engine', '~25 hp'], ['Type', 'Self-propelled']], features: ['Easy trailer transport'], delivery: true, rate: CALL },
+    specs: [['Cutting depth', '~16 in'], ['Engine', '~25 hp'], ['Type', 'Self-propelled']], features: ['Easy trailer transport'], delivery: true, rates: [225, 900, 2700] },
   { slug: 'trencher', book: 'Trencher', name: 'Walk-Behind Trencher', category: 'landscaping', blurb: 'Sprinkler lines, cable and small utility trenches.',
-    specs: [['Trench depth', 'up to 36 in'], ['Width', '4-6 in']], features: ['Adjustable depth'], delivery: true, rate: CALL },
+    specs: [['Trench depth', 'up to 36 in'], ['Width', '4-6 in']], features: ['Adjustable depth'], delivery: true, rates: [150, 600, 1800] },
   { slug: 'smooth-drum-roller', book: 'Roller', name: 'Smooth Drum Roller', category: 'compaction', blurb: 'Compact base, gravel and asphalt for a solid finish.',
-    specs: [['Drum width', '48 in'], ['Weight', '~3,500 lbs']], features: ['Vibratory', 'Water spray'], delivery: true, rate: CALL },
+    specs: [['Drum width', '48 in'], ['Weight', '~3,500 lbs']], features: ['Vibratory', 'Water spray'], delivery: true, rates: [225, 900, 2700] },
   { slug: 'plate-compactor', book: 'Plate Compactor', name: 'Plate Compactor', category: 'compaction', blurb: 'Pavers, trench backfill and small base areas.',
-    specs: [['Plate', '20 in'], ['Force', '~4,000 lbf']], features: ['Pickup-friendly size'], delivery: false, rate: CALL },
+    specs: [['Plate', '20 in'], ['Force', '~4,000 lbf']], features: ['Pickup-friendly size'], delivery: false, rates: [60, 240, 720] },
 ];
 
 export const catName = (slug: string) => categories.find((c) => c.slug === slug)?.name ?? slug;

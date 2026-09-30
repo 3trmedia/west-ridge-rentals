@@ -5,6 +5,7 @@ import ItemCard from '../../../components/ItemCard.astro';
 import AvailabilityCalendar from '../../../components/AvailabilityCalendar.astro';
 import { categories, catName, items } from '../../../data/equipment';
 import { site } from '../../../data/site';
+import { money } from '../../../lib/pricing';
 
 export function getStaticPaths() {
   return items.map((item) => ({ params: { category: item.category, slug: item.slug }, props: { item } }));
@@ -25,8 +26,12 @@ const related = items.filter((i) => i.category === item.category && i.slug !== i
           <p class="eyebrow">{catName(item.category)}</p>
           <h1 class="h1" style="font-size: clamp(2.2rem, 5vw, 3.4rem);">{item.name}</h1>
           <p class="lead" style="margin-top: 1rem;">{item.blurb}</p>
-          <p class="price">{item.rate}</p>
-          <p class="note">Daily, weekly and monthly rates. We'll confirm pricing with your request.</p>
+          <div class="rates" aria-label="Rental rates">
+            <div><span>Daily</span><strong>{money(item.rates[0])}</strong></div>
+            <div><span>Weekly</span><strong>{money(item.rates[1])}</strong><small>Save {Math.round((1 - item.rates[1] / (item.rates[0] * 7)) * 100)}%</small></div>
+            <div><span>Monthly</span><strong>{money(item.rates[2])}</strong><small>Save {Math.round((1 - item.rates[2] / (item.rates[0] * 30)) * 100)}%</small></div>
+          </div>
+          <p class="note">Weekly and monthly rates apply automatically to longer rentals. Delivery, fuel and taxes are extra. We confirm your total before anything is final.</p>
           <div style="display: flex; gap: .75rem; flex-wrap: wrap; margin: 1.5rem 0;">
             <button type="button" class="btn-primary" data-add data-slug={item.slug} data-name={item.name}><span data-add-label>Add to request</span></button>
             <a href="/request" class="btn-outline">View Request List</a>
@@ -72,7 +77,12 @@ const related = items.filter((i) => i.category === item.category && i.slug !== i
   .split { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: start; }
   .visual { aspect-ratio: 4/3; background: var(--color-wr-mid); border: 1px solid var(--color-wr-border); display: flex; flex-direction: column; gap: .75rem; align-items: center; justify-content: center; color: #b7bcb7; }
   .soon { font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; }
-  .price { font-family: var(--font-heading); font-size: 2rem; font-weight: 700; margin-top: 1.25rem; }
+  .rates { display: grid; grid-template-columns: repeat(3, 1fr); margin: 1.5rem 0 .75rem; border: 1px solid var(--color-wr-border); }
+  .rates div { padding: .9rem 1rem; text-align: center; background: var(--color-wr-mid); }
+  .rates div + div { border-left: 1px solid var(--color-wr-border); }
+  .rates span { display: block; font-family: var(--font-heading); font-size: .75rem; letter-spacing: .15em; text-transform: uppercase; color: var(--color-wr-muted); }
+  .rates strong { display: block; font-family: var(--font-heading); font-size: 2rem; line-height: 1.1; }
+  .rates small { display: block; font-size: .7rem; font-weight: 600; color: #8A5D00; text-transform: uppercase; letter-spacing: .08em; }
   .note { font-size: .85rem; color: var(--color-wr-muted); }
   .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
   .row { display: flex; justify-content: space-between; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--color-wr-border); }
