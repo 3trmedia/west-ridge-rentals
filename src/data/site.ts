@@ -7,7 +7,6 @@ export const site = {
   email: 'rentals@example.com',
   address: 'Utah',
   hours: 'Mon-Fri | 7AM - 5PM',
-  manager: 'Aaron',
   web3formsKey: import.meta.env.PUBLIC_WEB3FORMS_KEY || 'YOUR_WEB3FORMS_ACCESS_KEY',
 };
 

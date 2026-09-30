@@ -94,7 +94,7 @@ export const icons: Record<string, string> = {
   roller: '<rect x="3" y="14" width="6" height="6" rx="3"/><rect x="12" y="11" width="9" height="9" rx="4.5"/><path d="M9 17h3M5 14V8h7l2 3"/>',
 };
 
-// Short name Aaron types as the calendar event title to block an item (see /bookings-guide).
+// Short name typed as the calendar event title to block an item (see /bookings-guide).
 export const bookingKeys = (i: Item) => [i.book, i.name, i.slug];
 
 // Suggested add-ons shown as "Often rented together" (first two that exist).

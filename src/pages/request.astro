@@ -6,14 +6,14 @@ import { site, featuredCities } from '../data/site';
 const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
 ---
 <Layout title="Request a Rental | West Ridge Rentals" description="Build your equipment rental request, choose dates and delivery, and send it to our team for confirmation." noindex>
-  <PageHero eyebrow="Request a rental" kicker="Free rental quote in Utah" title="Get a rental quote" intro={`Pick your equipment and dates and we'll get back to you within one business day. No payment now. ${site.manager} confirms availability, pricing and delivery with you first.`} />
+  <PageHero eyebrow="Request a rental" kicker="Free rental quote in Utah" title="Get a rental quote" intro={`Pick your equipment and dates and we'll get back to you within one business day. No payment now. Our team confirms availability, pricing and delivery with you first.`} />
 
   <section class="section section-gray">
     <div class="container layout">
       <div>
         <div id="success" class="hidden success">
           <p class="big">Request sent</p>
-          <p>Thanks, we've got it. {site.manager} will reach out shortly to confirm. Need it sooner? Call <a href={site.phoneHref}>{site.phone}</a>.</p>
+          <p>Thanks, we've got it. Our team will reach out shortly to confirm. Need it sooner? Call <a href={site.phoneHref}>{site.phone}</a>.</p>
           <p class="sum-title">Here's what you sent</p>
           <pre id="sent-summary" class="sum"></pre>
           <a href="/equipment" class="btn-outline" style="margin-top: 1.5rem;">Back to Equipment</a>
@@ -233,7 +233,7 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
     box.classList.remove('hidden');
   };
 
-  // Equipment already booked for the chosen dates (from Aaron's calendar). Returns true if there are none.
+  // Equipment already booked for the chosen dates (from the bookings calendar). Returns true if there are none.
   const checkConflicts = () => {
     const box = $('avail-warn'); box.classList.add('hidden'); box.innerHTML = '';
     if (!avail.ok || !start.value || !end.value || end.value < start.value) return true;

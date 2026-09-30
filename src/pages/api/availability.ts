@@ -3,7 +3,7 @@ import { loadBookings } from '../../lib/bookings';
 
 export const prerender = false;
 
-// BOOKINGS_ICAL_URL is the *secret iCal address* of the Google Calendar Aaron uses to block equipment.
+// BOOKINGS_ICAL_URL is the *secret iCal address* of the Google Calendar used to block booked equipment.
 // Set it in Vercel env vars (and locally in .env). Never hardcode it: it grants read access to the calendar.
 // This endpoint returns only { itemSlug: [[firstDay, lastDay], ...] }, never titles or notes.
 const ICS = import.meta.env.BOOKINGS_ICAL_URL || process.env.BOOKINGS_ICAL_URL;
