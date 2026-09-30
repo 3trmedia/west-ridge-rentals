@@ -1,49 +1,72 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { site } from '../data/site';
+import PageHero from '../components/PageHero.astro';
+import { site, featuredCities } from '../data/site';
 ---
 <Layout title="Contact | West Ridge Rentals" description="Questions about equipment, availability or delivery? Contact West Ridge Rentals in Utah.">
-  <div class="max-w-5xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-10">
-    <div>
-      <h1 class="text-5xl md:text-6xl">Contact Us</h1>
-      <p class="text-wr-muted mt-4">Questions about equipment, availability or delivery? Send a message or give us a call.</p>
-      <dl class="mt-8 space-y-4">
-        <div><dt class="label">Phone</dt><dd><a class="text-wr-white hover:text-wr-yellow" href={site.phoneHref}>{site.phone}</a></dd></div>
-        <div><dt class="label">Email</dt><dd><a class="text-wr-white hover:text-wr-yellow" href={`mailto:${site.email}`}>{site.email}</a></dd></div>
-        <div><dt class="label">Hours</dt><dd class="text-wr-white">{site.hours}</dd></div>
-        <div><dt class="label">Yard</dt><dd class="text-wr-white">{site.address}</dd></div>
-      </dl>
-      <p class="mt-8 text-wr-muted">Ready to rent? <a href="/equipment/" class="text-wr-yellow underline">Browse equipment</a> and send a request.</p>
-    </div>
+  <PageHero eyebrow="Contact us" kicker="Questions about a rental?" title="Get in touch" intro={`Send us a message or give us a call. We're available ${site.hours.replace(' | ', ', ')}. Ready to rent? Skip ahead and request a rental.`} primary={['Request a Rental', '/request']} />
 
-    <form id="contact" class="bg-wr-char border border-wr-line p-6 space-y-4">
-      <div><label class="label" for="c-name">Name</label><input class="field" id="c-name" required autocomplete="name" /></div>
-      <div><label class="label" for="c-email">Email</label><input class="field" id="c-email" type="email" required autocomplete="email" /></div>
-      <div><label class="label" for="c-phone">Phone (optional)</label><input class="field" id="c-phone" type="tel" autocomplete="tel" /></div>
-      <div><label class="label" for="c-msg">Message</label><textarea class="field" id="c-msg" rows="5" required></textarea></div>
-      <input type="checkbox" id="c-bot" class="hidden" tabindex="-1" autocomplete="off" />
-      <p id="c-status" class="hidden text-sm"></p>
-      <button class="btn btn-primary w-full" type="submit" id="c-submit">Send Message</button>
-    </form>
-  </div>
+  <section class="section section-gray">
+    <div class="container layout">
+      <form id="contact" novalidate>
+        <h2 class="form-title">Send us a message</h2>
+        <div class="two">
+          <div><label class="label" for="c-name">Name *</label><input class="field" id="c-name" placeholder="John Smith" required autocomplete="name" /></div>
+          <div><label class="label" for="c-phone">Phone</label><input class="field" id="c-phone" type="tel" placeholder="(801) 555-0100" autocomplete="tel" /></div>
+        </div>
+        <div class="block"><label class="label" for="c-email">Email address *</label><input class="field" id="c-email" type="email" placeholder="you@example.com" required autocomplete="email" /></div>
+        <div class="block"><label class="label" for="c-msg">Message *</label><textarea class="field" id="c-msg" rows="6" placeholder="How can we help?" required></textarea></div>
+        <input type="checkbox" id="c-bot" class="hidden" tabindex="-1" autocomplete="off" />
+        <p id="c-status" class="hidden" style="margin-bottom: 1rem; font-size: .95rem;"></p>
+        <button class="btn-primary" type="submit" id="c-submit" style="width: 100%;">Send Message</button>
+      </form>
+
+      <aside class="side">
+        <div class="card info">
+          <h3>Contact Information</h3>
+          <dl>
+            <div><dt>Email</dt><dd><a href={`mailto:${site.email}`}>{site.email}</a></dd></div>
+            <div><dt>Phone</dt><dd><a href={site.phoneHref}>{site.phone}</a></dd></div>
+            <div><dt>Location</dt><dd>{site.address}</dd></div>
+            <div><dt>Hours</dt><dd>{site.hours}</dd></div>
+          </dl>
+        </div>
+        <div class="card info">
+          <h3>Service Area</h3>
+          <p class="hint">We deliver to job sites across the state of Utah.</p>
+          <div class="chips">{featuredCities.slice(0, 8).map((c) => <span class="chip">{c}</span>)}</div>
+          <a href="/service-areas" class="more">View full coverage map &rarr;</a>
+        </div>
+      </aside>
+    </div>
+  </section>
 </Layout>
+
+<style is:global>
+  #contact .block, #contact .two { margin-bottom: 1.25rem; }
+  #contact .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  @media (max-width: 560px) { #contact .two { grid-template-columns: 1fr; } }
+</style>
 
 <script define:vars={{ key: site.web3formsKey, siteName: site.name }}>
   const $ = (id) => document.getElementById(id);
   $('contact').addEventListener('submit', async (e) => {
     e.preventDefault();
     const st = $('c-status'), btn = $('c-submit');
-    btn.disabled = true; btn.textContent = 'Sending...'; st.classList.add('hidden');
+    if (!$('c-name').value.trim() || !$('c-email').value || !$('c-email').validity.valid || !$('c-msg').value.trim()) {
+      st.textContent = 'Please add your name, a valid email and a message.'; st.className = 'err'; return;
+    }
+    btn.disabled = true; btn.textContent = 'Sending...'; st.className = 'hidden';
     try {
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ access_key: key, subject: `Website message from ${$('c-name').value}`, from_name: siteName,
-          name: $('c-name').value, email: $('c-email').value, phone: $('c-phone').value, message: $('c-msg').value, botcheck: $('c-bot').checked }),
+        body: JSON.stringify({ access_key: key, subject: `Website message from ${$('c-name').value.trim()}`, from_name: siteName,
+          name: $('c-name').value.trim(), email: $('c-email').value.trim(), phone: $('c-phone').value.trim(), message: $('c-msg').value.trim(), botcheck: $('c-bot').checked }),
       });
       const data = await res.json();
       if (!data.success) throw new Error();
-      $('contact').reset(); st.textContent = 'Thanks! We\'ll be in touch shortly.'; st.className = 'text-sm text-wr-yellow';
-    } catch { st.textContent = 'Something went wrong. Please try again or call us.'; st.className = 'text-sm text-wr-orange'; }
+      $('contact').reset(); st.textContent = "Thanks! We'll be in touch within one business day."; st.className = ''; st.style.color = '#8A5D00';
+    } catch { st.textContent = 'Something went wrong. Please try again or call us.'; st.className = 'err'; st.style.color = ''; }
     btn.disabled = false; btn.textContent = 'Send Message';
   });
 </script>

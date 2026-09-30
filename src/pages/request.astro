@@ -1,84 +1,140 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { site } from '../data/site';
+import PageHero from '../components/PageHero.astro';
+import { categories, items } from '../data/equipment';
+import { site, featuredCities } from '../data/site';
 ---
 <Layout title="Request a Rental | West Ridge Rentals" description="Build your equipment rental request, choose dates and delivery, and send it to our team for confirmation." noindex>
-  <div class="max-w-6xl mx-auto px-4 py-12">
-    <h1 class="text-5xl md:text-6xl">Request a Rental</h1>
-    <p class="text-wr-muted mt-3">No payment now. {site.manager} will confirm availability, pricing and delivery details with you.</p>
+  <PageHero eyebrow="Request a rental" kicker="Free rental quote in Utah" title="Get a rental quote" intro={`Pick your equipment and dates and we'll get back to you within one business day. No payment now. ${site.manager} confirms availability, pricing and delivery with you first.`} />
 
-    <!-- Empty state -->
-    <div id="empty" class="hidden mt-10 border border-dashed border-wr-line p-12 text-center">
-      <p class="font-display text-3xl text-wr-white">Your request list is empty</p>
-      <p class="text-wr-muted mt-2">Add the equipment you need and come back here to send it over.</p>
-      <a href="/equipment/" class="btn btn-primary mt-6">Browse Equipment</a>
-    </div>
+  <section class="section section-gray">
+    <div class="container layout">
+      <div>
+        <div id="success" class="hidden success">
+          <p class="big">Request sent</p>
+          <p>Thanks, we've got it. {site.manager} will reach out shortly to confirm. Need it sooner? Call <a href={site.phoneHref}>{site.phone}</a>.</p>
+          <a href="/equipment" class="btn-outline" style="margin-top: 1.5rem;">Back to Equipment</a>
+        </div>
 
-    <!-- Success state -->
-    <div id="success" class="hidden mt-10 border border-wr-yellow bg-wr-char p-10 text-center">
-      <p class="font-display text-4xl text-wr-yellow">Request sent</p>
-      <p class="text-wr-text mt-3">Thanks, we've got it. {site.manager} will reach out shortly to confirm. Need it sooner? Call <a class="text-wr-yellow" href={site.phoneHref}>{site.phone}</a>.</p>
-      <a href="/equipment/" class="btn btn-ghost mt-6">Back to Equipment</a>
-    </div>
+        <form id="form" novalidate>
+          <h2 class="form-title">Tell us what you need</h2>
 
-    <form id="form" class="hidden mt-10 grid lg:grid-cols-5 gap-8" novalidate>
-      <!-- Left: items + dates + delivery -->
-      <div class="lg:col-span-3 space-y-8">
-        <section class="bg-wr-char border border-wr-line p-6">
-          <h2 class="text-2xl mb-4">1. Your equipment</h2>
-          <ul id="items" class="divide-y divide-wr-line"></ul>
-          <a href="/equipment/" class="inline-block mt-4 text-wr-yellow text-sm hover:underline">+ Add more equipment</a>
-        </section>
-
-        <section class="bg-wr-char border border-wr-line p-6">
-          <h2 class="text-2xl mb-4">2. When do you need it?</h2>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div><label class="label" for="start">Start date</label><input class="field" type="date" id="start" required /></div>
-            <div><label class="label" for="end">Return date</label><input class="field" type="date" id="end" required /></div>
+          <div class="block">
+            <label class="label" for="picker">Equipment *</label>
+            <ul id="items" class="picked"></ul>
+            <p id="items-empty" class="hidden hint">Nothing added yet. Choose equipment below or <a href="/equipment">browse the fleet</a>.</p>
+            <div class="add-row">
+              <select id="picker" class="field">
+                <option value="">Add equipment...</option>
+                {categories.map((c) => (
+                  <optgroup label={c.name}>
+                    {items.filter((i) => i.category === c.slug).map((i) => <option value={i.slug}>{i.name}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+              <button type="button" id="add-btn" class="btn-outline">Add</button>
+            </div>
           </div>
-          <p id="duration" class="mt-3 text-sm text-wr-yellow min-h-5"></p>
-          <p id="date-error" class="hidden mt-1 text-sm text-wr-orange"></p>
-        </section>
 
-        <section class="bg-wr-char border border-wr-line p-6">
-          <h2 class="text-2xl mb-4">3. Delivery or pickup</h2>
-          <div class="grid sm:grid-cols-2 gap-3" role="radiogroup">
-            <label class="opt"><input type="radio" name="method" value="Pickup" checked /><span><strong>I'll pick it up</strong><small>From our yard</small></span></label>
-            <label class="opt"><input type="radio" name="method" value="Delivery" /><span><strong>Deliver to my site</strong><small>We'll quote delivery</small></span></label>
+          <div class="two">
+            <div><label class="label" for="start">Start date *</label><input class="field" type="date" id="start" required /></div>
+            <div><label class="label" for="end">Return date *</label><input class="field" type="date" id="end" required /></div>
           </div>
-          <div id="address-wrap" class="hidden mt-4">
-            <label class="label" for="address">Job site address</label>
-            <input class="field" id="address" placeholder="Street, city, UT" autocomplete="street-address" />
-          </div>
-        </section>
-      </div>
+          <p id="duration" class="duration"></p>
+          <p id="date-error" class="hidden err"></p>
 
-      <!-- Right: contact -->
-      <div class="lg:col-span-2">
-        <section class="bg-wr-char border border-wr-line p-6 lg:sticky lg:top-24 space-y-4">
-          <h2 class="text-2xl">4. Your info</h2>
-          <div><label class="label" for="name">Name</label><input class="field" id="name" autocomplete="name" required /></div>
-          <div><label class="label" for="company">Company</label><input class="field" id="company" autocomplete="organization" /></div>
-          <div><label class="label" for="phone">Phone</label><input class="field" id="phone" type="tel" autocomplete="tel" required /></div>
-          <div><label class="label" for="email">Email</label><input class="field" id="email" type="email" autocomplete="email" required /></div>
-          <div><label class="label" for="notes">Anything we should know?</label><textarea class="field" id="notes" rows="3" placeholder="Job details, operator needed, attachments..."></textarea></div>
+          <div class="block">
+            <span class="label">Delivery or pickup *</span>
+            <div class="two" role="radiogroup">
+              <label class="opt"><input type="radio" name="method" value="Pickup" checked /><span><strong>I'll pick it up</strong><small>From our yard</small></span></label>
+              <label class="opt"><input type="radio" name="method" value="Delivery" /><span><strong>Deliver to my site</strong><small>We'll quote delivery</small></span></label>
+            </div>
+            <div id="address-wrap" class="hidden" style="margin-top: 1rem;">
+              <label class="label" for="address">Job site address *</label>
+              <input class="field" id="address" placeholder="1234 Main St, Provo, UT 84601" autocomplete="street-address" />
+            </div>
+          </div>
+
+          <div class="two">
+            <div><label class="label" for="name">Name *</label><input class="field" id="name" placeholder="John Smith" autocomplete="name" required /></div>
+            <div><label class="label" for="company">Company</label><input class="field" id="company" placeholder="Company name" autocomplete="organization" /></div>
+          </div>
+          <div class="two">
+            <div><label class="label" for="phone">Phone number *</label><input class="field" id="phone" type="tel" placeholder="(801) 555-0100" autocomplete="tel" required /></div>
+            <div><label class="label" for="email">Email address *</label><input class="field" id="email" type="email" placeholder="you@example.com" autocomplete="email" required /></div>
+          </div>
+          <div class="block">
+            <label class="label" for="notes">Project details</label>
+            <textarea class="field" id="notes" rows="4" placeholder="Describe the job, whether you need an operator, attachments, anything else..."></textarea>
+          </div>
+
           <input type="checkbox" id="botcheck" class="hidden" tabindex="-1" autocomplete="off" />
-          <p id="form-error" class="hidden text-sm text-wr-orange"></p>
-          <button type="submit" id="submit" class="btn btn-primary w-full">Send Request</button>
-          <p class="text-xs text-wr-muted">By sending, you agree we may contact you about this request. See our <a class="underline" href="/privacy/">Privacy Policy</a>.</p>
-        </section>
+          <p id="form-error" class="hidden err"></p>
+          <button type="submit" id="submit" class="btn-primary" style="width: 100%;">Submit Rental Request</button>
+          <p class="fine">We respond to all requests within one business day. By sending, you agree we may contact you about this request. See our <a href="/privacy">Privacy Policy</a>.</p>
+        </form>
       </div>
-    </form>
-  </div>
+
+      <aside class="side">
+        <div class="card info">
+          <h3>Contact Information</h3>
+          <dl>
+            <div><dt>Email</dt><dd><a href={`mailto:${site.email}`}>{site.email}</a></dd></div>
+            <div><dt>Phone</dt><dd><a href={site.phoneHref}>{site.phone}</a></dd></div>
+            <div><dt>Location</dt><dd>{site.address}</dd></div>
+            <div><dt>Hours</dt><dd>{site.hours}</dd></div>
+          </dl>
+        </div>
+        <div class="card info">
+          <h3>Service Area</h3>
+          <p class="hint">We deliver to job sites across the state of Utah.</p>
+          <div class="chips">{featuredCities.slice(0, 8).map((c) => <span class="chip">{c}</span>)}</div>
+          <a href="/service-areas" class="more">View full coverage map &rarr;</a>
+        </div>
+        <div class="guarantee"><strong>One-business-day response</strong><span>We respond to every rental request within one business day.</span></div>
+      </aside>
+    </div>
+  </section>
 </Layout>
 
 <style is:global>
-  .opt { display: flex; gap: .75rem; align-items: flex-start; padding: .9rem 1rem; border: 1px solid var(--color-wr-line); cursor: pointer; transition: border-color .15s; }
-  .opt:has(input:checked) { border-color: var(--color-wr-yellow); background: rgb(245 179 1 / .08); }
-  .opt input { accent-color: var(--color-wr-yellow); margin-top: .3rem; }
+  .layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 3rem; align-items: start; }
+  .form-title { font-family: var(--font-heading); font-size: 1.1rem; letter-spacing: .02em; margin-bottom: 1.25rem; font-weight: 600; }
+  #form .block, #form .two { margin-bottom: 1.25rem; }
+  #form .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .picked { list-style: none; padding: 0; margin: 0 0 .75rem; }
+  .picked li { display: flex; align-items: center; justify-content: space-between; gap: .75rem; background: #fff; border: 1px solid var(--color-wr-border); border-left: 3px solid var(--color-wr-yellow); padding: .65rem .9rem; margin-bottom: .5rem; }
+  .picked .ctl { display: flex; align-items: center; gap: .4rem; }
+  .qty-btn { width: 1.9rem; height: 1.9rem; border: 1px solid var(--color-wr-border); background: #fff; font-size: 1.1rem; line-height: 1; }
+  .qty-btn:hover { border-color: #121212; }
+  .rm { margin-left: .5rem; font-size: .8rem; color: var(--color-wr-muted); }
+  .rm:hover { color: #b3261e; text-decoration: underline; }
+  .add-row { display: flex; gap: .6rem; }
+  .add-row .btn-outline { padding: .8rem 1.5rem; }
+  .hint { font-size: .9rem; color: var(--color-wr-muted); margin-bottom: .75rem; }
+  .hint a, .fine a, .info a.more { color: #8A5D00; text-decoration: underline; }
+  .duration { color: #8A5D00; font-weight: 600; min-height: 1.2rem; margin: -.5rem 0 1rem; font-size: .9rem; }
+  .err { color: #b3261e; font-size: .9rem; margin-bottom: 1rem; }
+  .opt { display: flex; gap: .75rem; align-items: flex-start; padding: .9rem 1rem; background: #fff; border: 1px solid var(--color-wr-border); cursor: pointer; }
+  .opt:has(input:checked) { border-color: var(--color-wr-yellow); box-shadow: inset 0 0 0 1px var(--color-wr-yellow); background: #FFFBEF; }
+  .opt input { accent-color: #121212; margin-top: .3rem; }
   .opt small { display: block; color: var(--color-wr-muted); }
-  .qty-btn { width: 2rem; height: 2rem; border: 1px solid var(--color-wr-line); color: var(--color-wr-white); }
-  .qty-btn:hover { border-color: var(--color-wr-yellow); color: var(--color-wr-yellow); }
+  .fine { text-align: center; font-size: .8rem; color: var(--color-wr-muted); margin-top: 1rem; }
+  .side { display: grid; gap: 1.25rem; }
+  .info { padding: 1.5rem; }
+  .info h3 { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem; }
+  .info dl { display: grid; gap: 1rem; }
+  .info dt { font-family: var(--font-heading); font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: #8A5D00; }
+  .info a { color: inherit; }
+  .info .chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+  .guarantee { background: #E4E2D6; border: 1px solid #CFCCB9; padding: 1.25rem 1.5rem; }
+  .guarantee strong { display: block; font-family: var(--font-heading); text-transform: uppercase; letter-spacing: .03em; }
+  .guarantee span { font-size: .9rem; color: var(--color-wr-muted); }
+  .success { background: #fff; border: 1px solid var(--color-wr-yellow); padding: 2.5rem; }
+  .success .big { font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; text-transform: uppercase; margin-bottom: .5rem; }
+  .success a:not(.btn-outline) { color: #8A5D00; text-decoration: underline; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { #form .two { grid-template-columns: 1fr; } }
 </style>
 
 <script define:vars={{ key: site.web3formsKey, siteName: site.name }}>
@@ -88,28 +144,26 @@ import { site } from '../data/site';
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
   const write = (l) => { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch {} window.dispatchEvent(new CustomEvent('wr-list-changed')); };
 
-  const form = $('form'), empty = $('empty'), success = $('success'), itemsEl = $('items');
+  const form = $('form'), success = $('success'), itemsEl = $('items'), picker = $('picker');
   const start = $('start'), end = $('end');
   const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   start.min = end.min = iso(new Date());
 
   const render = () => {
     const list = read();
-    empty.classList.toggle('hidden', list.length > 0);
-    form.classList.toggle('hidden', list.length === 0);
+    $('items-empty').classList.toggle('hidden', list.length > 0);
     itemsEl.innerHTML = '';
     list.forEach((e, i) => {
       const li = document.createElement('li');
-      li.className = 'flex items-center justify-between gap-3 py-3';
-      li.innerHTML = `<span class="text-wr-white font-medium"></span>
-        <span class="flex items-center gap-2">
+      li.innerHTML = `<span style="font-weight:600"></span>
+        <span class="ctl">
           <button type="button" class="qty-btn" data-act="dec" aria-label="Decrease">&minus;</button>
-          <span class="w-6 text-center"></span>
+          <span style="min-width:1.5rem;text-align:center"></span>
           <button type="button" class="qty-btn" data-act="inc" aria-label="Increase">+</button>
-          <button type="button" class="ml-2 text-sm text-wr-muted hover:text-wr-orange" data-act="rm">Remove</button>
+          <button type="button" class="rm" data-act="rm">Remove</button>
         </span>`;
       li.firstElementChild.textContent = e.name;
-      li.querySelector('.w-6').textContent = e.qty;
+      li.querySelector('.ctl > span').textContent = e.qty;
       li.addEventListener('click', (ev) => {
         const act = ev.target.dataset && ev.target.dataset.act;
         if (!act) return;
@@ -122,6 +176,14 @@ import { site } from '../data/site';
       itemsEl.appendChild(li);
     });
   };
+
+  $('add-btn').addEventListener('click', () => {
+    if (!picker.value) return;
+    const name = picker.options[picker.selectedIndex].text;
+    const l = read(); const hit = l.find((e) => e.slug === picker.value);
+    if (hit) hit.qty += 1; else l.push({ slug: picker.value, name, qty: 1 });
+    write(l); picker.value = ''; render();
+  });
 
   const dateCheck = () => {
     const err = $('date-error'), dur = $('duration');
@@ -138,7 +200,7 @@ import { site } from '../data/site';
   end.addEventListener('change', dateCheck);
 
   document.querySelectorAll('input[name="method"]').forEach((r) => r.addEventListener('change', () => {
-    $('address-wrap').classList.toggle('hidden', r.value !== 'Delivery' || !r.checked);
+    $('address-wrap').classList.toggle('hidden', document.querySelector('input[name="method"]:checked').value !== 'Delivery');
   }));
 
   form.addEventListener('submit', async (ev) => {
@@ -147,10 +209,10 @@ import { site } from '../data/site';
     const fail = (m) => { fe.textContent = m; fe.classList.remove('hidden'); };
     const list = read();
     const method = document.querySelector('input[name="method"]:checked').value;
-    if (!list.length) return fail('Add at least one piece of equipment.');
+    if (!list.length) return fail('Please add at least one piece of equipment.');
     if (!start.value || !end.value || !dateCheck()) return fail('Please choose valid start and return dates.');
     if (method === 'Delivery' && !$('address').value.trim()) return fail('Please enter the job site address for delivery.');
-    if (!$('name').value.trim() || !$('phone').value.trim() || !$('email').validity.valid || !$('email').value) return fail('Please add your name, phone and a valid email.');
+    if (!$('name').value.trim() || !$('phone').value.trim() || !$('email').value || !$('email').validity.valid) return fail('Please add your name, phone and a valid email.');
 
     const days = Math.round((new Date(end.value) - new Date(start.value)) / 86400000) + 1;
     const message = [
@@ -180,7 +242,7 @@ import { site } from '../data/site';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       fail('Something went wrong sending your request. Please try again or call us.');
-      btn.disabled = false; btn.textContent = 'Send Request';
+      btn.disabled = false; btn.textContent = 'Submit Rental Request';
     }
   });
 

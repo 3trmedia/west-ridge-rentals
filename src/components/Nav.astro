@@ -1,0 +1,145 @@
+---
+import { categories } from '../data/equipment';
+import { site } from '../data/site';
+
+const navLinks = [
+  { label: 'How It Works', href: '/how-it-works' },
+  { label: 'Service Areas', href: '/service-areas' },
+  { label: 'About', href: '/about' },
+];
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<header id="site-header">
+  <div class="header-top">
+    <div class="container">
+      <span>{site.hours}</span>
+      <span><a href={site.phoneHref}>{site.phone}</a> &nbsp;|&nbsp; <a href={`mailto:${site.email}`}>{site.email}</a></span>
+    </div>
+  </div>
+
+  <nav class="main-nav">
+    <div class="container nav-inner">
+      <a href="/" class="logo" aria-label={site.name}>
+        <span class="logo-mark">WR</span>
+        <span class="logo-text">West Ridge <em>Rentals</em></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/" class={currentPath === '/' ? 'active' : ''}>Home</a></li>
+        <li class="has-dropdown">
+          <button class="dropdown-trigger" aria-expanded="false" aria-haspopup="true">
+            Equipment <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <ul class="dropdown">
+            <li><a href="/equipment">All Equipment</a></li>
+            {categories.map((c) => <li><a href={`/equipment/${c.slug}`}>{c.name}</a></li>)}
+          </ul>
+        </li>
+        {navLinks.map((l) => (
+          <li><a href={l.href} class={currentPath === l.href ? 'active' : ''}>{l.label}</a></li>
+        ))}
+      </ul>
+
+      <div class="nav-cta">
+        <a href="/request" class="btn-primary nav-quote">Request a Rental <span data-list-count class="count"></span></a>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+    <div class="mobile-header">
+      <a href="/" class="logo"><span class="logo-mark">WR</span><span class="logo-text">West Ridge <em>Rentals</em></span></a>
+      <button class="mobile-close" id="mobile-close" aria-label="Close menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#121212" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li class="mobile-section-label">Equipment</li>
+      <li class="mobile-indent"><a href="/equipment">All Equipment</a></li>
+      {categories.map((c) => <li class="mobile-indent"><a href={`/equipment/${c.slug}`}>{c.name}</a></li>)}
+      {navLinks.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      <li><a href="/contact">Contact</a></li>
+      <li class="mobile-cta"><a href="/request" class="btn-primary">Request a Rental <span data-list-count class="count"></span></a></li>
+    </ul>
+  </div>
+</header>
+
+<style>
+  #site-header { position: sticky; top: 0; left: 0; right: 0; z-index: 100; }
+  .header-top { background: #F0F3F0; border-bottom: 1px solid #D0D5D0; font-size: .75rem; color: #666; padding: .4rem 0; }
+  .header-top .container { display: flex; justify-content: space-between; align-items: center; }
+  .header-top a { color: #666; text-decoration: none; transition: color .2s; }
+  .header-top a:hover { color: #8A5D00; }
+
+  .main-nav { background: #fff; border-bottom: 2px solid var(--color-wr-yellow); box-shadow: 0 2px 12px rgba(0,0,0,.07); }
+  .nav-inner { display: flex; align-items: center; justify-content: flex-start; height: 64px; gap: 2rem; }
+
+  .logo { display: flex; align-items: center; gap: .55rem; text-decoration: none; flex-shrink: 0; }
+  .logo-mark { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; background: var(--color-wr-yellow); color: #121212; font-family: var(--font-heading); font-weight: 700; font-size: 1.4rem; line-height: 1; }
+  .logo-text { font-family: var(--font-heading); font-weight: 700; font-size: 1.35rem; letter-spacing: .06em; text-transform: uppercase; color: #121212; line-height: 1; }
+  .logo-text em { font-style: normal; color: #8A5D00; }
+
+  .nav-links { display: flex; list-style: none; margin: 0 0 0 auto; padding: 0; gap: .25rem; align-items: center; }
+  .nav-links a, .dropdown-trigger { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; color: #1a1a1a; text-decoration: none; padding: .5rem .75rem; transition: color .2s; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: .4rem; }
+  .nav-links a:hover, .dropdown-trigger:hover, .nav-links a.active { color: #8A5D00; }
+
+  .has-dropdown { position: relative; }
+  .dropdown { display: none; position: absolute; top: calc(100% + .5rem); left: 0; background: #fff; border: 1px solid #D0D5D0; border-top: 2px solid var(--color-wr-yellow); list-style: none; padding: .5rem 0; margin: 0; min-width: 220px; z-index: 10; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+  .has-dropdown:hover .dropdown, .has-dropdown:focus-within .dropdown { display: block; }
+  .dropdown a { font-size: .85rem; padding: .6rem 1rem; display: block; letter-spacing: .05em; }
+
+  .nav-cta { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+  .nav-quote { padding: .7rem 1.4rem; font-size: .85rem; white-space: nowrap; }
+  .count { display: none; min-width: 1.3rem; height: 1.3rem; padding: 0 .3rem; margin-left: .35rem; border-radius: 999px; background: #121212; color: var(--color-wr-yellow); font-size: .75rem; line-height: 1.3rem; text-align: center; }
+  .count.on { display: inline-block; }
+
+  .hamburger { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 5px; background: none; border: none; cursor: pointer; padding: 0; min-width: 44px; min-height: 44px; }
+  .hamburger { position: relative; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: #1a1a1a; }
+  .hamburger[data-has-items]::after { content: ""; position: absolute; top: 8px; right: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--color-wr-yellow); border: 2px solid #fff; }
+
+  .mobile-menu { display: none; position: fixed; inset: 0; background: #fff; z-index: 101; overflow-y: auto; padding: 0 2rem 2rem; transform: translateX(100%); transition: transform .3s ease; }
+  .mobile-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #D0D5D0; margin-bottom: 1rem; }
+  .mobile-close { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-right: -.5rem; }
+  .mobile-menu.open { transform: translateX(0); }
+  .mobile-menu ul { list-style: none; margin: 0; padding: 0; }
+  .mobile-menu a:not(.btn-primary):not(.logo) { font-family: var(--font-heading); font-size: 1.5rem; letter-spacing: .05em; text-transform: uppercase; color: #121212; text-decoration: none; display: block; padding: .75rem 0; border-bottom: 1px solid #D0D5D0; }
+  .mobile-section-label { font-family: var(--font-heading); font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: #8A5D00; padding: 1.25rem 0 .25rem; }
+  .mobile-indent a:not(.btn-primary) { font-size: 1.1rem !important; padding-left: 1rem !important; color: #666 !important; }
+  .mobile-cta { padding-top: 2rem; }
+  .mobile-cta .btn-primary { display: block; width: 100%; }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .nav-cta { margin-left: auto; }
+    .nav-quote { display: none; }
+    .hamburger { display: flex; }
+    .mobile-menu { display: block; }
+  }
+  @media (max-width: 480px) {
+    .header-top .container { flex-direction: column; gap: .2rem; text-align: center; }
+  }
+</style>
+
+<script>
+  import { listCount } from '../lib/request-list';
+  const hamburger = document.getElementById('hamburger');
+  const menu = document.getElementById('mobile-menu');
+  const open = () => { menu?.classList.add('open'); hamburger?.setAttribute('aria-expanded', 'true'); menu?.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; };
+  const close = () => { menu?.classList.remove('open'); hamburger?.setAttribute('aria-expanded', 'false'); menu?.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; };
+  hamburger?.addEventListener('click', () => (menu?.classList.contains('open') ? close() : open()));
+  document.getElementById('mobile-close')?.addEventListener('click', close);
+
+  // Mobile has no nav button, so show the list count on the hamburger via the menu CTA; desktop shows it on the CTA.
+  const refresh = () => {
+    const n = listCount();
+    document.querySelectorAll<HTMLElement>('[data-list-count]').forEach((el) => { el.textContent = String(n); el.classList.toggle('on', n > 0); });
+    hamburger?.toggleAttribute('data-has-items', n > 0);
+  };
+  refresh();
+  window.addEventListener('wr-list-changed', refresh);
+  window.addEventListener('storage', refresh);
+</script>

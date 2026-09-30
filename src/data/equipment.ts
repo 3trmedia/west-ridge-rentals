@@ -1,15 +1,53 @@
 // PLACEHOLDER INVENTORY: every item below is sample data until West Ridge supplies the real fleet.
-export type Category = { slug: string; name: string; blurb: string; icon: string };
+export type Category = {
+  slug: string; name: string; blurb: string; icon: string;
+  kicker: string; h1: string; intro: string;
+  whyTitle: string; whyBody: string[]; checklist: string[]; badge: [string, string];
+  faqs: [string, string][];
+};
 export type Item = {
   slug: string; name: string; category: string; blurb: string;
   specs: [string, string][]; features: string[]; delivery: boolean; rate: string;
 };
 
+// PLACEHOLDER COPY: category page content is generic until West Ridge confirms real details.
 export const categories: Category[] = [
-  { slug: 'trucks',      name: 'Trucks & Hauling', blurb: 'Dump trucks, flatbeds and trailers to move material and machines.', icon: 'truck' },
-  { slug: 'excavation',  name: 'Excavation',       blurb: 'Excavators, backhoes and skid steers for digging and grading.',      icon: 'excavator' },
-  { slug: 'landscaping', name: 'Landscaping',      blurb: 'Compact equipment for yards, lots and site cleanup.',                icon: 'leaf' },
-  { slug: 'compaction',  name: 'Compaction & Concrete', blurb: 'Rollers, plate compactors and finishing tools.',                icon: 'roller' },
+  { slug: 'trucks', name: 'Trucks & Hauling', icon: 'truck',
+    blurb: 'Dump trucks, flatbeds and trailers to move material and machines.',
+    kicker: 'Dump trucks & trailers for rent in Utah', h1: 'Trucks & hauling. Ready when you are.',
+    intro: 'Dump trucks, flatbeds and equipment trailers for contractors and businesses. Tell us the dates and we confirm availability fast.',
+    whyTitle: 'Move more, wait less',
+    whyBody: ['Hauling shouldn’t slow a job down. Our trucks and trailers are inspected between rentals so they show up ready to work.', 'Rent a truck on its own or pair it with an excavator or skid steer and a trailer to get everything to the site in one trip.'],
+    checklist: ['Dump trucks, flatbeds and trailers', 'Inspected between every rental', 'Delivery available across Utah', 'Straps, tarps and ramps on request', 'Daily, weekly and monthly rates'],
+    badge: ['Utah', 'Statewide hauling'],
+    faqs: [['Do I need a CDL?', 'Some larger trucks require one. We’ll tell you when you request.'], ['Can you deliver a trailer?', 'Yes. Delivery is quoted by distance.'], ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement. A deposit may apply.'], ['How fast can I get one?', 'Often within a day or two. Send a request and we’ll confirm.'], ['Can I rent for a single day?', 'Yes. Daily, weekly and monthly options are available.'], ['Do you service my area?', 'We serve the Wasatch Front and beyond. See our Service Areas page or call us.']] },
+  { slug: 'excavation', name: 'Excavation', icon: 'excavator',
+    blurb: 'Excavators, backhoes and skid steers for digging and grading.',
+    kicker: 'Excavators & skid steers for rent in Utah', h1: 'Dig it. Grade it. Done.',
+    intro: 'Mini excavators, full-size excavators, backhoes and skid steers for trenching, grading, loading and site prep.',
+    whyTitle: 'The right machine for the job',
+    whyBody: ['From tight residential trenches to full-size site work, we have machines sized for the job. Not sure what you need? Describe the project and we’ll point you to the right one.', 'Attachments like buckets, thumbs, forks and augers are available with most machines.'],
+    checklist: ['Mini and full-size excavators', 'Skid steers and backhoes', 'Buckets, thumbs, forks and augers', 'Delivered and picked up on a trailer', 'Quick walk-around at handoff'],
+    badge: ['3.5–20t', 'Machine sizes'],
+    faqs: [['Do you rent operators?', 'Let us know in your request notes and we’ll tell you what is possible.'], ['Are attachments included?', 'A standard bucket is included. Other attachments are available.'], ['How is delivery handled?', 'We haul it on a trailer to your job site and pick it up when you are done.'], ['What size excavator do I need?', 'Describe the job and we’ll recommend one.'], ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement.'], ['Can I rent by the week?', 'Yes. Daily, weekly and monthly rates are available.']] },
+  { slug: 'landscaping', name: 'Landscaping', icon: 'leaf',
+    blurb: 'Compact equipment for yards, lots and site cleanup.',
+    kicker: 'Landscaping equipment for rent in Utah', h1: 'Landscaping gear that gets it done.',
+    intro: 'Compact track loaders, stump grinders and trenchers for yards, lots and small commercial sites.',
+    whyTitle: 'Built for finished yards',
+    whyBody: ['Compact, low-ground-pressure machines work around finished lawns, fences and tight side yards without tearing things up.', 'Perfect for sprinkler lines, stump removal, grading and cleanup, for contractors and property managers alike.'],
+    checklist: ['Low ground pressure machines', 'Stump grinders and trenchers', 'Fits through standard gates', 'Easy pickup or delivery', 'Weekend-friendly rentals'],
+    badge: ['Low', 'Ground pressure'],
+    faqs: [['Will it damage my lawn?', 'Rubber-track machines are much gentler on turf than wheels.'], ['Can I pick it up myself?', 'Smaller equipment is pickup-friendly. Ask about trailers.'], ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement.'], ['Is training provided?', 'We do a quick walk-around at handoff.'], ['Can I rent for a weekend?', 'Yes, weekend and daily rentals are available.'], ['Do you service my area?', 'See our Service Areas page or call us.']] },
+  { slug: 'compaction', name: 'Compaction & Concrete', icon: 'roller',
+    blurb: 'Rollers, plate compactors and finishing tools.',
+    kicker: 'Compaction equipment for rent in Utah', h1: 'A solid base starts here.',
+    intro: 'Smooth drum rollers and plate compactors for base, gravel, pavers and asphalt.',
+    whyTitle: 'Get the finish right',
+    whyBody: ['Proper compaction is what makes a driveway, patio or parking lot last. Our rollers and plates are maintained and ready to run.', 'Pair with a skid steer or truck from our fleet and get everything in one rental.'],
+    checklist: ['Smooth drum rollers', 'Plate compactors', 'Pickup-friendly sizes', 'Fuel and water-spray ready', 'Bundle with trucks and loaders'],
+    badge: ['1 Call', 'Bundle your rental'],
+    faqs: [['Which compactor for pavers?', 'A plate compactor is typical. Tell us the job and we’ll help.'], ['Can I pick one up?', 'Plate compactors fit in a truck bed. Rollers usually need a trailer.'], ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement.'], ['Is fuel included?', 'Equipment goes out ready to run. Return it with a full tank.'], ['Can I rent by the day?', 'Yes.'], ['Do you deliver?', 'Yes, delivery is quoted by distance.']] },
 ];
 
 const CALL = 'Call for quote';

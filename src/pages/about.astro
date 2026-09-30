@@ -1,20 +1,37 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
 import { site } from '../data/site';
+const values = [['Statewide', 'Serving businesses across Utah'], ['Maintained', 'Inspected between every rental'], ['Responsive', 'Real people, fast answers']];
 ---
 <Layout title="About | West Ridge Rentals" description="West Ridge Rentals supplies trucks, excavation and landscaping equipment to Utah businesses and contractors.">
-  <div class="max-w-4xl mx-auto px-4 py-12">
-    <h1 class="text-5xl md:text-6xl">About West Ridge</h1>
-    <div class="mt-8 space-y-5 text-lg text-wr-text">
-      <p>West Ridge Rentals puts well-maintained trucks, excavation and landscaping equipment in the hands of Utah's contractors and businesses, without the runaround.</p>
-      <p>Tell us what you need and when. {site.manager} and the team handle availability, delivery and paperwork so you can stay focused on the job.</p>
-      <p class="text-wr-muted">[Placeholder: company story, years in business, service area and team photo go here once provided.]</p>
+  <PageHero eyebrow="About us" title="Utah's equipment rental team" intro="Well-maintained trucks, excavation and landscaping equipment for Utah's contractors and businesses, without the runaround." primary={['Request a Rental', '/request']} />
+
+  <section class="section section-gray">
+    <div class="container why">
+      <div class="visual"><Icon name="truck" class="w-32 h-32" /></div>
+      <div>
+        <p class="eyebrow">Our story</p>
+        <h2 class="h2" style="margin-bottom: 1.25rem;">Built for people who work</h2>
+        <p class="lead" style="margin-bottom: 1rem;">Tell us what you need and when. {site.manager} and the team handle availability, delivery and paperwork so you can stay focused on the job.</p>
+        <p class="lead" style="margin-bottom: 1.5rem;">[Placeholder: company story, years in business, service area and team photo go here once provided.]</p>
+        <a href="/contact" class="btn-outline">Get in Touch</a>
+      </div>
     </div>
-    <div class="mt-10 grid sm:grid-cols-3 gap-4">
-      {[['Statewide', 'Serving businesses across Utah'], ['Maintained', 'Inspected between every rental'], ['Responsive', 'Real people, fast answers']].map(([t, d]) => (
-        <div class="bg-wr-char border border-wr-line p-5"><h2 class="text-2xl text-wr-yellow">{t}</h2><p class="text-wr-muted mt-1">{d}</p></div>
-      ))}
+  </section>
+
+  <section class="section section-white">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2.5rem;"><p class="eyebrow">What we stand for</p><h2 class="h2">The West Ridge way</h2></div>
+      <div class="vals">{values.map(([t, d]) => <div class="card card-accent" style="padding: 1.75rem;"><h3 style="font-size: 1.5rem; text-transform: uppercase;">{t}</h3><p class="lead" style="margin-top: .5rem; font-size: .95rem;">{d}</p></div>)}</div>
     </div>
-    <a href="/contact/" class="btn btn-primary mt-10">Get in Touch</a>
-  </div>
+  </section>
 </Layout>
+
+<style>
+  .why { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+  .visual { aspect-ratio: 4/3; background: #fff; border: 1px solid var(--color-wr-border); display: grid; place-items: center; color: #b7bcb7; }
+  .vals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  @media (max-width: 800px) { .why, .vals { grid-template-columns: 1fr; gap: 2rem; } }
+</style>

@@ -1,0 +1,79 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import Icon from '../../../components/Icon.astro';
+import ItemCard from '../../../components/ItemCard.astro';
+import { categories, items } from '../../../data/equipment';
+import { site } from '../../../data/site';
+
+export function getStaticPaths() {
+  return categories.map((cat) => ({ params: { category: cat.slug }, props: { cat } }));
+}
+const { cat } = Astro.props;
+const list = items.filter((i) => i.category === cat.slug);
+---
+<Layout title={`${cat.name} Rentals in Utah | West Ridge Rentals`} description={cat.intro}>
+  <PageHero eyebrow={`${cat.name} rentals`} kicker={cat.kicker} title={cat.h1} intro={cat.intro} primary={['Request a Rental', '/request']} secondary={['See the Fleet', '#fleet']} />
+
+  <section class="section section-gray">
+    <div class="container why">
+      <div>
+        <p class="eyebrow">Why West Ridge</p>
+        <h2 class="h2" style="margin-bottom: 1.25rem;">{cat.whyTitle}</h2>
+        {cat.whyBody.map((p) => <p class="lead" style="margin-bottom: 1rem;">{p}</p>)}
+        <ul class="check-list" style="margin: 1.5rem 0 2rem;">{cat.checklist.map((c) => <li>{c}</li>)}</ul>
+        <a href="/request" class="btn-primary">Request {cat.name}</a>
+      </div>
+      <div class="visual">
+        <Icon name={cat.icon} class="w-32 h-32" />
+        <span class="badge"><strong>{cat.badge[0]}</strong><small>{cat.badge[1]}</small></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-mid">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2.5rem;">
+        <p class="eyebrow">Common questions</p>
+        <h2 class="h2">{cat.name} FAQ</h2>
+      </div>
+      <div class="faq">
+        {cat.faqs.map(([q, a]) => (
+          <div class="card card-accent" style="padding: 1.25rem 1.5rem;"><h3 class="q">{q}</h3><p class="a">{a}</p></div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-gray" id="fleet">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2.5rem;">
+        <p class="eyebrow">Available to rent</p>
+        <h2 class="h2">{cat.name} fleet</h2>
+      </div>
+      <div class="grid">{list.map((i) => <ItemCard item={i} />)}</div>
+      <div style="text-align: center; margin-top: 2.5rem;"><a href="/equipment" class="btn-outline">View All Equipment</a></div>
+    </div>
+  </section>
+
+  <section style="background: var(--color-wr-yellow); padding: 4rem 0; text-align: center;">
+    <div class="container">
+      <h2 class="h2" style="margin-bottom: .75rem;">Get your {cat.name.split(" ")[0]} rental quote</h2>
+      <p style="max-width: 32rem; margin: 0 auto 1.75rem; color: #222;">Tell us your dates and job details and {site.manager} will confirm availability and pricing, usually within one business day.</p>
+      <a href="/request" class="btn-dark">Request a Rental</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .why { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+  .visual { position: relative; aspect-ratio: 4/3; background: var(--color-wr-white); border: 1px solid var(--color-wr-border); display: grid; place-items: center; color: #b7bcb7; }
+  .badge { position: absolute; right: -1rem; bottom: -1.25rem; background: var(--color-wr-yellow); color: #121212; padding: 1rem 1.5rem; text-align: center; }
+  .badge strong { display: block; font-family: var(--font-heading); font-size: 2rem; line-height: 1; }
+  .badge small { font-family: var(--font-heading); font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; }
+  .faq { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .q { font-size: 1.05rem; text-transform: none; letter-spacing: .01em; margin-bottom: .4rem; font-family: var(--font-body); font-weight: 600; }
+  .a { font-size: .9rem; color: var(--color-wr-muted); line-height: 1.6; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+  @media (max-width: 900px) { .why { grid-template-columns: 1fr; gap: 3rem; } .faq { grid-template-columns: 1fr; } .badge { right: 0; } }
+</style>
