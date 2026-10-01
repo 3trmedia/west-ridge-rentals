@@ -11,6 +11,7 @@ export type Item = {
   specs: [string, string][]; features: string[]; delivery: boolean; rates: [number, number, number]; // [day, week, month]
   icon?: 'excavator' | 'loader' | 'trailer' | 'compactor'; // placeholder art until a photo exists in src/assets/images/items/<slug>.jpg
   comingSoon?: boolean; // listed but not requestable yet (not in the fleet)
+  real?: boolean; // part of the actual West Ridge fleet (shown in its own section below the demo items)
 };
 
 // PLACEHOLDER COPY: category page content is generic until West Ridge confirms real details.
@@ -112,8 +113,11 @@ const sample: Item[] = [
     specs: [['Plate', '20 in'], ['Force', '~4,000 lbf']], features: ['Pickup-friendly size'], delivery: true, rates: [60, 240, 720] },
 ];
 
-// Real fleet first within each category, then the sample items.
-export const items: Item[] = categories.flatMap((c) => [...fleet, ...sample].filter((i) => i.category === c.slug));
+// Demo items stay grouped first (for viewing); the real fleet follows in its own section. Both sorted by category.
+const byCategory = (list: Item[]) => categories.flatMap((c) => list.filter((i) => i.category === c.slug));
+export const sampleItems: Item[] = byCategory(sample);
+export const fleetItems: Item[] = byCategory(fleet.map((i) => ({ ...i, real: true })));
+export const items: Item[] = [...sampleItems, ...fleetItems];
 export const requestable = (i: Item) => !i.comingSoon;
 
 export const catName = (slug: string) => categories.find((c) => c.slug === slug)?.name ?? slug;

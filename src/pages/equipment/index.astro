@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import PageHero from '../../components/PageHero.astro';
 import ItemCard from '../../components/ItemCard.astro';
-import { categories, items } from '../../data/equipment';
+import { categories, sampleItems, fleetItems } from '../../data/equipment';
 import { IMG } from '../../lib/images';
 import { AVAILABILITY_ON } from '../../lib/config';
 ---
@@ -25,8 +25,19 @@ import { AVAILABILITY_ON } from '../../lib/config';
         <input type="search" id="search" placeholder="Search equipment..." class="field search" aria-label="Search equipment" />
       </div>
 
-      <div class="grid" id="grid">
-        {items.map((i) => <ItemCard item={i} />)}
+      <div class="grid" id="grid" data-group>
+        {sampleItems.map((i) => <ItemCard item={i} />)}
+      </div>
+
+      <div class="fleet" data-group-wrap>
+        <div class="fleet-head">
+          <p class="eyebrow">Our fleet</p>
+          <h2 class="h2">Equipment we own</h2>
+          <p class="lead">The machines in the West Ridge yard right now, plus what's joining the fleet soon. Photos coming soon.</p>
+        </div>
+        <div class="grid" data-group>
+          {fleetItems.map((i) => <ItemCard item={i} />)}
+        </div>
       </div>
       <p id="empty" class="hidden lead" style="text-align: center; padding: 3rem 0;">Nothing matches. <a href="/contact" style="color: #B45300; text-decoration: underline;">Ask us</a>, we may be able to source it.</p>
     </div>
@@ -47,6 +58,9 @@ import { AVAILABILITY_ON } from '../../lib/config';
   .tab[aria-pressed="true"] { background: var(--color-wr-ink); color: #fff; border-color: var(--color-wr-ink); }
   .search { max-width: 16rem; margin-left: auto; padding: .55rem .9rem; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+  .fleet { margin-top: 4.5rem; padding-top: 3.5rem; border-top: 2px solid var(--color-wr-border); }
+  .fleet-head { max-width: 40rem; margin-bottom: 2rem; }
+  .fleet-head .h2 { margin-bottom: .6rem; }
   @media (max-width: 640px) { .search { max-width: none; margin-left: 0; flex-basis: 100%; } .dfield { flex: 1; min-width: 8rem; } }
 </style>
 
@@ -103,6 +117,8 @@ import { AVAILABILITY_ON } from '../../lib/config';
     });
     tabs.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === cat)));
     empty.classList.toggle('hidden', shown > 0);
+    // Hide the fleet section entirely when filters leave it empty.
+    document.querySelectorAll<HTMLElement>('[data-group-wrap]').forEach((w) => { w.hidden = !w.querySelector('[data-item-card]:not(.hidden)'); });
     clear.hidden = !(dStart.value || dEnd.value);
     note.classList.toggle('on', !!d);
     note.textContent = d
