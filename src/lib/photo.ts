@@ -5,6 +5,9 @@ import type { ImageMetadata } from 'astro';
 
 const all = import.meta.glob<{ default: ImageMetadata }>('/src/assets/images/**/*.{jpg,jpeg,png,webp}', { eager: true });
 
+/** True when a real (or stock) photo exists for this path; otherwise pages show an icon placeholder. */
+export const hasPhoto = (path: string) => Boolean(all['/src/assets/images' + path.replace(/^\/images/, '')]);
+
 export async function photo(path: string, width: number) {
   const mod = all['/src/assets/images' + path.replace(/^\/images/, '')];
   if (!mod) throw new Error(`Missing image: ${path}`);

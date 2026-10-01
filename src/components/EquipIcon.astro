@@ -1,0 +1,18 @@
+---
+// Placeholder art for equipment without a photo. Fills its parent; the parent sets size and shape.
+import { equipIcons } from '../data/icons';
+const { icon = 'excavator', label = true, size = 'md' } = Astro.props as { icon?: string; label?: boolean; size?: 'sm' | 'md' | 'lg' };
+---
+<span class:list={['ei', size]}>
+  <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={equipIcons[icon] ?? equipIcons.excavator} />
+  {label && <small>Photo coming soon</small>}
+</span>
+
+<style>
+  .ei { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem; width: 100%; height: 100%; color: var(--color-wr-accent); background: linear-gradient(145deg, #F7F4F0, var(--color-wr-mid)); }
+  svg { width: 34%; height: auto; max-width: 140px; }
+  .sm svg { width: 40%; }
+  .lg svg { width: 30%; }
+  small { font-size: .68rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--color-wr-muted); }
+  .sm small { font-size: .6rem; }
+</style>

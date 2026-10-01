@@ -2,14 +2,18 @@
 import { catName, type Item } from '../data/equipment';
 import { money } from '../lib/pricing';
 import { itemImg } from '../lib/images';
-import { photo } from '../lib/photo';
+import { photo, hasPhoto } from '../lib/photo';
+import EquipIcon from './EquipIcon.astro';
 const { item } = Astro.props as { item: Item };
 const href = `/equipment/${item.category}/${item.slug}`;
-const p = await photo(itemImg(item.slug), 480);
+const p = hasPhoto(itemImg(item.slug)) ? await photo(itemImg(item.slug), 480) : null;
 ---
 <article class="item-card" data-item-card data-slug={item.slug} data-name={item.name.toLowerCase()} data-category={item.category} data-rates={item.rates.join(',')}>
   <a href={href} class="thumb" tabindex="-1" aria-label={item.name}>
-    <img src={p.src} srcset={p.srcset} sizes="(max-width: 640px) 92vw, 320px" alt={`${item.name} available to rent in Utah`} width={p.width} height={p.height} loading="lazy" decoding="async" />
+    {p
+      ? <img src={p.src} srcset={p.srcset} sizes="(max-width: 640px) 92vw, 320px" alt={`${item.name} available to rent in Utah`} width={p.width} height={p.height} loading="lazy" decoding="async" />
+      : <EquipIcon icon={item.icon} />}
+    {item.comingSoon && <span class="soon-pill">Coming soon</span>}
     <span class="tag">{catName(item.category)}</span>
     <span class="booked-pill" data-avail-slot data-slug={item.slug} hidden></span>
   </a>
@@ -20,7 +24,9 @@ const p = await photo(itemImg(item.slug), 480);
     <p class="est-line" data-est hidden></p>
     <div class="foot">
       <div class="price"><span><strong>{money(item.rates[0])}</strong>/day</span><small>{money(item.rates[1])}/wk &middot; {money(item.rates[2])}/mo</small></div>
-      <button type="button" class="btn-primary add" data-add data-slug={item.slug} data-name={item.name}><span data-add-label>Add to request</span></button>
+      {item.comingSoon
+        ? <button type="button" class="btn-primary add" disabled>Coming soon</button>
+        : <button type="button" class="btn-primary add" data-add data-slug={item.slug} data-name={item.name}><span data-add-label>Add to request</span></button>}
     </div>
   </div>
 </article>
@@ -49,5 +55,7 @@ const p = await photo(itemImg(item.slug), 480);
   .price { display: flex; flex-direction: column; line-height: 1.25; font-size: .8rem; color: #444; }
   .price strong { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--color-wr-ink); }
   .price small { color: var(--color-wr-muted); font-size: .72rem; }
+  .soon-pill { position: absolute; right: .75rem; top: .75rem; background: var(--color-wr-char); color: #fff; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: .3rem .65rem; border-radius: 999px; }
+  .add:disabled { background: var(--color-wr-mid); border-color: var(--color-wr-mid); color: var(--color-wr-muted); cursor: default; transform: none; box-shadow: none; }
   .add { flex: none; width: 7.6rem; padding: .6rem .5rem; font-size: .8rem; }
 </style>

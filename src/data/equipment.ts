@@ -9,6 +9,8 @@ export type Category = {
 export type Item = {
   slug: string; book: string; name: string; category: string; blurb: string;
   specs: [string, string][]; features: string[]; delivery: boolean; rates: [number, number, number]; // [day, week, month]
+  icon?: 'excavator' | 'loader' | 'trailer' | 'compactor'; // placeholder art until a photo exists in src/assets/images/items/<slug>.jpg
+  comingSoon?: boolean; // listed but not requestable yet (not in the fleet)
 };
 
 // PLACEHOLDER COPY: category page content is generic until West Ridge confirms real details.
@@ -55,9 +57,35 @@ export const categories: Category[] = [
     faqs: [['Which compactor for pavers?', 'A plate compactor is typical. Tell us the job and we’ll help.'], ['Can I pick one up?', 'Plate compactors fit in a truck bed. Rollers usually need a trailer.'], ['What do I need to rent?', 'Typically a valid ID, proof of insurance and a signed rental agreement.'], ['Is fuel included?', 'Equipment goes out ready to run. Return it with a full tank.'], ['Can I rent by the day?', 'Yes.'], ['Do you deliver?', 'Yes, delivery is quoted by distance.']] },
 ];
 
-// PLACEHOLDER RATES (USD): every item's [day, week, month] price is sample data until West Ridge supplies real rates.
+// REAL FLEET (from the client, 2026-10-01). Names and status are real. Rates are PLACEHOLDER market estimates
+// until West Ridge sets its own; specs beyond what the client sent are kept generic on purpose. No photos yet,
+// so these show icon placeholders. Asset values are internal only and intentionally not stored here.
+const fleet: Item[] = [
+  { slug: 'tilt-deck-trailer-7x16', book: 'Tilt Deck Trailer', name: 'Tilt Deck Trailer (7x16)', category: 'trucks', icon: 'trailer',
+    blurb: 'Tilt-deck equipment trailer for moving skid loaders and mini excavators without ramps.',
+    specs: [['Deck', '7 x 16 ft'], ['Type', 'Tilt deck']], features: ['No ramps to set up', 'Low load angle'], delivery: true, rates: [120, 480, 1440] },
+  { slug: 'diamond-c-trailer-7x14', book: 'Diamond C Trailer', name: 'Diamond C 7x14 Trailer', category: 'trucks', icon: 'trailer',
+    blurb: 'Heavy-duty Diamond C trailer for hauling compact equipment and materials.',
+    specs: [['Size', '7 x 14 ft'], ['Make / model', 'Diamond C T2']], features: ['Built for compact equipment'], delivery: true, rates: [90, 360, 1080] },
+  { slug: 'cat-306cr-mini-excavator', book: 'Cat 306', name: 'Cat 306 CR Mini Excavator', category: 'excavation', icon: 'excavator',
+    blurb: 'Six-ton class Cat mini excavator for trenching, footings and site work.',
+    specs: [['Make / model', 'Caterpillar 306 CR'], ['Size class', '6-ton mini excavator']], features: ['Compact radius', 'Rubber tracks'], delivery: true, rates: [395, 1580, 4740] },
+  { slug: 'cat-308cr-mini-excavator', book: 'Cat 308', name: 'Cat 308 CR Mini Excavator', category: 'excavation', icon: 'excavator',
+    blurb: 'Eight-ton class Cat excavator with more reach and lift for bigger jobs.',
+    specs: [['Make / model', 'Caterpillar 308 CR'], ['Size class', '8-ton mini excavator']], features: ['Compact radius', 'Rubber tracks'], delivery: true, rates: [495, 1980, 5940] },
+  { slug: 'cat-255-skid-loader', book: 'Cat 255', name: 'Cat 255 High Flow Skid Loader', category: 'excavation', icon: 'loader', comingSoon: true,
+    blurb: 'High-flow Cat loader that runs demanding attachments like mulchers and cold planers.',
+    specs: [['Make / model', 'Caterpillar 255'], ['Hydraulics', 'High flow']], features: ['High-flow attachments'], delivery: true, rates: [425, 1700, 5100] },
+  { slug: 'cat-scl1000-compact-skid', book: 'SCL1000', name: 'Cat SCL1000 Compact Skid', category: 'excavation', icon: 'loader', comingSoon: true,
+    blurb: 'Compact Cat skid loader that fits through gates and tight side yards.',
+    specs: [['Make / model', 'Caterpillar SCL1000'], ['Size', 'Compact']], features: ['Fits tight spaces'], delivery: true, rates: [275, 1100, 3300] },
+  { slug: 'multiquip-plate-compactor-17', book: 'Multiquip Plate', name: 'Multiquip 17" Plate Compactor', category: 'compaction', icon: 'compactor',
+    blurb: 'Plate compactor for pavers, trench backfill and small base areas.',
+    specs: [['Make', 'Multiquip'], ['Plate width', '17 in']], features: ['Pickup-friendly size'], delivery: true, rates: [75, 300, 900] },
+];
 
-export const items: Item[] = [
+// PLACEHOLDER INVENTORY + RATES (USD): sample items kept until the full real fleet is in.
+const sample: Item[] = [
   { slug: 'dump-truck-10yd', book: 'Dump Truck', name: '10 Yard Dump Truck', category: 'trucks', blurb: 'Everyday hauler for gravel, soil and demo debris.',
     specs: [['Capacity', '10 cubic yards'], ['Payload', '~15 tons'], ['License', 'CDL may be required']], features: ['Tandem axle', 'Tarp system', 'Backup camera'], delivery: true, rates: [350, 1400, 4200] },
   { slug: 'flatbed-trailer-20', book: 'Equipment Trailer', name: '20 ft Equipment Trailer', category: 'trucks', blurb: 'Tag-along trailer for moving skid steers and mini excavators.',
@@ -84,6 +112,10 @@ export const items: Item[] = [
     specs: [['Plate', '20 in'], ['Force', '~4,000 lbf']], features: ['Pickup-friendly size'], delivery: true, rates: [60, 240, 720] },
 ];
 
+// Real fleet first within each category, then the sample items.
+export const items: Item[] = categories.flatMap((c) => [...fleet, ...sample].filter((i) => i.category === c.slug));
+export const requestable = (i: Item) => !i.comingSoon;
+
 export const catName = (slug: string) => categories.find((c) => c.slug === slug)?.name ?? slug;
 
 
@@ -92,6 +124,13 @@ export const bookingKeys = (i: Item) => [i.book, i.name, i.slug];
 
 // Suggested add-ons shown as "Often rented together" (first two that exist).
 export const pairs: Record<string, string[]> = {
+  'tilt-deck-trailer-7x16': ['cat-306cr-mini-excavator', 'cat-308cr-mini-excavator'],
+  'diamond-c-trailer-7x14': ['cat-306cr-mini-excavator', 'multiquip-plate-compactor-17'],
+  'cat-306cr-mini-excavator': ['tilt-deck-trailer-7x16', 'multiquip-plate-compactor-17'],
+  'cat-308cr-mini-excavator': ['tilt-deck-trailer-7x16', 'dump-truck-10yd'],
+  'cat-255-skid-loader': ['tilt-deck-trailer-7x16', 'dump-truck-10yd'],
+  'cat-scl1000-compact-skid': ['diamond-c-trailer-7x14', 'multiquip-plate-compactor-17'],
+  'multiquip-plate-compactor-17': ['cat-306cr-mini-excavator', 'diamond-c-trailer-7x14'],
   'dump-truck-10yd': ['skid-steer', 'mini-excavator-35'],
   'flatbed-trailer-20': ['mini-excavator-35', 'skid-steer'],
   'flatbed-truck': ['flatbed-trailer-20', 'skid-steer'],

@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PageHero from '../components/PageHero.astro';
-import { categories, items } from '../data/equipment';
+import { categories, items, requestable } from '../data/equipment';
 import { site, featuredCities } from '../data/site';
 const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
 ---
@@ -31,7 +31,7 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
                 <option value="">Add equipment...</option>
                 {categories.map((c) => (
                   <optgroup label={c.name}>
-                    {items.filter((i) => i.category === c.slug).map((i) => <option value={i.slug}>{i.name}</option>)}
+                    {items.filter((i) => i.category === c.slug && requestable(i)).map((i) => <option value={i.slug}>{i.name}</option>)}
                   </optgroup>
                 ))}
               </select>

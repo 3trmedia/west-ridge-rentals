@@ -5,14 +5,14 @@ import ItemCard from '../../../components/ItemCard.astro';
 import { categories, items } from '../../../data/equipment';
 import { site } from '../../../data/site';
 import { catImg, itemImg } from '../../../lib/images';
-import { photo } from '../../../lib/photo';
+import { photo, hasPhoto } from '../../../lib/photo';
 
 export function getStaticPaths() {
   return categories.map((cat) => ({ params: { category: cat.slug }, props: { cat } }));
 }
 const { cat } = Astro.props;
 const list = items.filter((i) => i.category === cat.slug);
-const lead = list[0];
+const lead = list.find((i) => hasPhoto(itemImg(i.slug))) ?? list[0];
 const leadP = await photo(itemImg(lead.slug), 700);
 ---
 <Layout title={`${cat.name} Rentals in Utah | West Ridge Rentals`} description={cat.intro}>

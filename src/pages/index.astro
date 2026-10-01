@@ -5,7 +5,8 @@ import { AVAILABILITY_ON } from '../lib/config';
 import { site, featuredCities } from '../data/site';
 import { money } from '../lib/pricing';
 import { itemImg, catImg, IMG } from '../lib/images';
-import { photo } from '../lib/photo';
+import { photo, hasPhoto } from '../lib/photo';
+import EquipIcon from '../components/EquipIcon.astro';
 
 // Six picks for the "All" tab; each category tab shows its own items.
 const featuredSlugs = ['mini-excavator-35', 'dump-truck-10yd', 'skid-steer', 'excavator-20t', 'compact-track-loader', 'flatbed-trailer-20'];
@@ -20,7 +21,7 @@ const industries = [
   ['Homeowners & property managers', 'Backyard projects, drainage and cleanup without buying the machine.', IMG.homeowners, '/equipment', 'Browse equipment'],
 ];
 const heroP = await photo(IMG.hero, 2000);
-const tileP = Object.fromEntries(await Promise.all(items.map(async (i) => [i.slug, await photo(itemImg(i.slug), 420)])));
+const tileP = Object.fromEntries(await Promise.all(items.map(async (i) => [i.slug, hasPhoto(itemImg(i.slug)) ? await photo(itemImg(i.slug), 420) : null])));
 const catP = Object.fromEntries(await Promise.all(categories.map(async (c) => [c.slug, await photo(catImg(c.slug), 600)])));
 const aboutP = await photo(IMG.about, 700);
 const indP = await Promise.all(industries.map((x) => photo(x[2], 640)));
@@ -64,9 +65,11 @@ const yardP = await photo(IMG.yard, 1600);
         <div class="tiles">
           {items.map((i) => (
             <a href={`/equipment/${i.category}/${i.slug}`} class="tile" data-cat={i.category} data-featured={featuredSlugs.includes(i.slug) ? '1' : '0'}>
-              <span class="tile-img"><img src={tileP[i.slug].src} srcset={tileP[i.slug].srcset} sizes="(max-width: 640px) 45vw, 280px" alt={`${i.name} for rent`} width={tileP[i.slug].width} height={tileP[i.slug].height} loading="lazy" decoding="async" /></span>
+              <span class="tile-img">{tileP[i.slug]
+                ? <img src={tileP[i.slug].src} srcset={tileP[i.slug].srcset} sizes="(max-width: 640px) 45vw, 280px" alt={`${i.name} for rent`} width={tileP[i.slug].width} height={tileP[i.slug].height} loading="lazy" decoding="async" />
+                : <EquipIcon icon={i.icon} size="sm" />}</span>
               <span class="tile-name">{i.name}</span>
-              <span class="tile-meta">From <strong>{money(i.rates[0])}</strong>/day</span>
+              <span class="tile-meta">{i.comingSoon ? 'Coming soon' : <>From <strong>{money(i.rates[0])}</strong>/day</>}</span>
             </a>
           ))}
         </div>
