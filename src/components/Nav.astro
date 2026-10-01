@@ -89,7 +89,9 @@ const isEquipment = currentPath.startsWith('/equipment');
 
   .has-dropdown { position: relative; }
   .dropdown { display: none; position: absolute; top: calc(100% + .5rem); left: 0; background: var(--color-wr-char); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; list-style: none; padding: .5rem; margin: 0; min-width: 230px; z-index: 10; box-shadow: 0 16px 36px rgba(0,0,0,.3); }
-  .has-dropdown:hover .dropdown, .has-dropdown:focus-within .dropdown { display: block; }
+  /* Invisible bridge over the gap so moving the mouse from "Equipment" down into the menu doesn't close it. */
+  .dropdown::before { content: ''; position: absolute; left: 0; right: 0; top: -.75rem; height: .75rem; }
+  .has-dropdown:hover .dropdown, .has-dropdown:focus-within .dropdown, .has-dropdown.open .dropdown { display: block; }
   .dropdown a { display: block; padding: .6rem .85rem; font-size: .9rem; }
 
   .nav-cta { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
@@ -141,6 +143,26 @@ const isEquipment = currentPath.startsWith('/equipment');
   const open = () => { menu?.classList.add('open'); hamburger?.setAttribute('aria-expanded', 'true'); menu?.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; };
   const close = () => { menu?.classList.remove('open'); hamburger?.setAttribute('aria-expanded', 'false'); menu?.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; };
   hamburger?.addEventListener('click', () => (menu?.classList.contains('open') ? close() : open()));
+
+  // Equipment menu: one click/tap opens the dropdown, a quick second click/tap goes to the full equipment list.
+  const trigger = document.querySelector<HTMLButtonElement>('.dropdown-trigger');
+  const drop = trigger?.closest<HTMLElement>('.has-dropdown');
+  let lastTap = 0;
+  trigger?.addEventListener('click', () => {
+    const now = Date.now();
+    if (now - lastTap < 450) { location.href = '/equipment'; return; }
+    lastTap = now;
+    const isOpen = drop!.classList.toggle('open');
+    trigger.setAttribute('aria-expanded', String(isOpen));
+    if (!isOpen) trigger.blur(); // focus would otherwise keep it open
+  });
+  // Close the click-opened menu when clicking elsewhere or pressing Escape.
+  document.addEventListener('click', (e) => {
+    if (drop && !drop.contains(e.target as Node)) { drop.classList.remove('open'); trigger?.setAttribute('aria-expanded', 'false'); trigger?.blur(); }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drop?.classList.contains('open')) { drop.classList.remove('open'); trigger?.setAttribute('aria-expanded', 'false'); trigger?.blur(); }
+  });
   document.getElementById('mobile-close')?.addEventListener('click', close);
 
   const refresh = () => {
