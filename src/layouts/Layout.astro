@@ -47,10 +47,7 @@ const schema = {
       const mark = (btn: HTMLElement) => {
         const label = btn.querySelector('[data-add-label]');
         if (label) label.textContent = 'Added ✓';
-        setTimeout(() => {
-          const n = getList().find((e) => e.slug === btn.dataset.slug)?.qty ?? 0;
-          if (label) label.textContent = n > 1 ? `In list (${n})` : 'In list';
-        }, 900);
+        setTimeout(() => { if (label) label.textContent = 'In list'; }, 900);
       };
       document.addEventListener('click', (e) => {
         const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-add]');

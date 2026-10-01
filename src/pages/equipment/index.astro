@@ -4,18 +4,19 @@ import PageHero from '../../components/PageHero.astro';
 import ItemCard from '../../components/ItemCard.astro';
 import { categories, items } from '../../data/equipment';
 import { IMG } from '../../lib/images';
+import { AVAILABILITY_ON } from '../../lib/config';
 ---
 <Layout title="Equipment Rentals | West Ridge Rentals" description="Browse dump trucks, excavators, skid steers, landscaping and compaction equipment available to rent across Utah.">
-  <PageHero eyebrow="Our fleet" title="Equipment for rent" intro="Enter your dates to see what's open and what it will cost. Add anything you need to your request list. No payment now." primary={['Request a rental', '/request']} image={IMG.yard} alt="Rows of compact loaders and lifts in an equipment yard" />
+  <PageHero eyebrow="Our fleet" title="Equipment for rent" intro={AVAILABILITY_ON ? "Enter your dates to see what's open and what it will cost. Add anything you need to your request list. No payment now." : 'Enter your dates to see what it will cost. Add anything you need to your request list. No payment now.'} primary={['Request a rental', '/request']} image={IMG.yard} alt="Rows of compact loaders and lifts in an equipment yard" />
 
   <section class="section section-gray">
     <div class="container">
-      <div class="datebar card" id="datebar">
+      <div class="datebar card" id="datebar" data-avail={AVAILABILITY_ON ? '1' : '0'}>
         <div class="dfield"><label class="label" for="d-start">Start date</label><input class="field" type="date" id="d-start" /></div>
         <div class="dfield"><label class="label" for="d-end">Return date</label><input class="field" type="date" id="d-end" /></div>
-        <label class="only"><input type="checkbox" id="only-avail" /> Only show available</label>
+        {AVAILABILITY_ON && <label class="only" id="only-wrap" hidden><input type="checkbox" id="only-avail" /> Only show available</label>}
         <button type="button" class="clear" id="d-clear" hidden>Clear dates</button>
-        <p class="dnote" id="d-note">Set your dates to see estimated prices and availability.</p>
+        <p class="dnote" id="d-note"></p>
       </div>
 
       <div class="tabs" role="group" aria-label="Filter by category">
@@ -33,10 +34,10 @@ import { IMG } from '../../lib/images';
 </Layout>
 
 <style>
-  .datebar { display: flex; flex-wrap: wrap; gap: 1rem 1.25rem; align-items: flex-end; padding: 1.25rem 1.5rem; margin-bottom: 1.75rem; border-left: 4px solid var(--color-wr-yellow); box-shadow: 0 8px 24px rgba(15,17,19,.05); }
+  .datebar { display: flex; flex-wrap: wrap; gap: 1rem 1.25rem; align-items: flex-end; padding: 1.25rem 1.5rem; margin-bottom: 1.75rem; border-left: 4px solid var(--color-wr-accent); box-shadow: 0 8px 24px rgba(15,17,19,.05); }
   .dfield { min-width: 11rem; }
   .only { display: flex; gap: .5rem; align-items: center; font-size: .9rem; padding-bottom: .8rem; cursor: pointer; }
-  .only input { accent-color: #121212; }
+  .only input { accent-color: var(--color-wr-ink); }
   .clear { font-size: .85rem; color: var(--color-wr-muted); text-decoration: underline; padding-bottom: .8rem; }
   .dnote { flex-basis: 100%; font-size: .85rem; color: var(--color-wr-muted); margin: 0; }
   .dnote.on { color: #B45300; font-weight: 600; }
@@ -61,7 +62,8 @@ import { IMG } from '../../lib/images';
   const empty = document.getElementById('empty')!;
   const dStart = document.getElementById('d-start') as HTMLInputElement;
   const dEnd = document.getElementById('d-end') as HTMLInputElement;
-  const only = document.getElementById('only-avail') as HTMLInputElement;
+  const only = document.getElementById('only-avail') as HTMLInputElement | null;
+  const availOn = document.getElementById('datebar')!.dataset.avail === '1';
   const note = document.getElementById('d-note')!;
   const clear = document.getElementById('d-clear') as HTMLButtonElement;
   let cat = new URLSearchParams(location.search).get('category') || 'all';
@@ -95,7 +97,7 @@ import { IMG } from '../../lib/images';
         estEl.hidden = true;
       }
       c.classList.toggle('unavail', blocked);
-      const ok = (cat === 'all' || c.dataset.category === cat) && (!q || c.dataset.name!.includes(q)) && !(only.checked && blocked);
+      const ok = (cat === 'all' || c.dataset.category === cat) && (!q || c.dataset.name!.includes(q)) && !(only?.checked && blocked);
       c.classList.toggle('hidden', !ok);
       if (ok) shown++;
     });
@@ -105,7 +107,7 @@ import { IMG } from '../../lib/images';
     note.classList.toggle('on', !!d);
     note.textContent = d
       ? `Showing prices for ${len} day${len === 1 ? '' : 's'} (${fmt(d.start)} to ${fmt(d.end)}). Your dates carry over to the request form.`
-      : 'Set your dates to see estimated prices and availability.';
+      : `Set your dates to see estimated prices${availOn ? ' and availability' : ''}.`;
   };
 
   const onDates = () => {
@@ -118,11 +120,11 @@ import { IMG } from '../../lib/images';
   };
   dStart.addEventListener('change', onDates);
   dEnd.addEventListener('change', onDates);
-  only.addEventListener('change', apply);
-  clear.addEventListener('click', () => { dStart.value = dEnd.value = ''; only.checked = false; setDates(null); apply(); });
+  only?.addEventListener('change', apply);
+  clear.addEventListener('click', () => { dStart.value = dEnd.value = ''; if (only) only.checked = false; setDates(null); apply(); });
   tabs.forEach((b) => b.addEventListener('click', () => { cat = b.dataset.filter!; apply(); }));
   search.addEventListener('input', apply);
 
   apply();
-  loadAvailability().then((a) => { avail = a; apply(); });
+  loadAvailability().then((a) => { avail = a; const w = document.getElementById('only-wrap'); if (w) w.hidden = !a.ok; apply(); });
 </script>

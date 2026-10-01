@@ -1,12 +1,14 @@
 ---
+import { photo } from '../lib/photo';
 // Dark page header with an optional photo behind it: eyebrow, big title, intro, optional buttons.
 const { eyebrow, kicker, title, intro, primary, secondary, image, alt = '' } = Astro.props as {
   eyebrow: string; kicker?: string; title: string; intro?: string;
   primary?: [string, string]; secondary?: [string, string]; image?: string; alt?: string;
 };
+const bg = image ? await photo(image, 1600) : null;
 ---
 <section class="page-hero">
-  {image && <img class="bg" src={image} alt={alt} width="1600" height="900" fetchpriority="high" decoding="async" />}
+  {bg && <img class="bg" src={bg.src} srcset={bg.srcset} sizes="100vw" alt={alt} width={bg.width} height={bg.height} fetchpriority="high" decoding="async" />}
   <div class="shade"></div>
   <div class="container inner">
     <p class="eyebrow eyebrow-light">{eyebrow}</p>
@@ -29,7 +31,7 @@ const { eyebrow, kicker, title, intro, primary, secondary, image, alt = '' } = A
   .inner { position: relative; padding-top: 4.5rem; padding-bottom: 4.75rem; }
   h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; line-height: 1.04; color: #fff; max-width: 40rem; }
   .intro { color: #d5d8dc; font-size: 1.08rem; line-height: 1.65; max-width: 36rem; margin-top: 1.1rem; }
-  .kicker { margin-top: .9rem; font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--color-wr-yellow); }
+  .kicker { margin-top: .9rem; font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--color-wr-accent); }
   .actions { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 2rem; }
   @media (max-width: 700px) { .inner { padding-top: 3.25rem; padding-bottom: 3.5rem; } .shade { background: rgba(15,17,19,.72); } }
 </style>

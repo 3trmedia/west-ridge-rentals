@@ -9,17 +9,17 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
   <PageHero eyebrow="Request a rental" kicker="Free rental quote in Utah" title="Get a rental quote" intro={`Pick your equipment and dates and we'll get back to you within one business day. No payment now. Our team confirms availability, pricing and delivery with you first.`} />
 
   <section class="section section-gray">
-    <div class="container layout">
+    <div class="container form-layout">
       <div>
-        <div id="success" class="hidden success">
+        <div id="success" class="hidden success card">
           <p class="big">Request sent</p>
           <p>Thanks, we've got it. Our team will reach out shortly to confirm. Need it sooner? Call <a href={site.phoneHref}>{site.phone}</a>.</p>
           <p class="sum-title">Here's what you sent</p>
           <pre id="sent-summary" class="sum"></pre>
-          <a href="/equipment" class="btn-outline" style="margin-top: 1.5rem;">Back to Equipment</a>
+          <a href="/equipment" class="btn-outline" style="margin-top: 1.5rem;">Back to equipment</a>
         </div>
 
-        <form id="form" novalidate data-key={site.web3formsKey} data-site={site.name} data-rates={JSON.stringify(rateMap)}>
+        <form id="form" class="form-card card" novalidate data-key={site.web3formsKey} data-site={site.name} data-rates={JSON.stringify(rateMap)}>
           <h2 class="form-title">Tell us what you need</h2>
 
           <div class="block">
@@ -55,7 +55,7 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
           <div class="block">
             <span class="label">Delivery or pickup *</span>
             <div class="two" role="radiogroup">
-              <label class="opt"><input type="radio" name="method" value="Pickup" checked /><span><strong>I'll pick it up</strong><small>From our yard</small></span></label>
+              <label class="opt"><input type="radio" name="method" value="Pickup" checked /><span><strong>I'll pick it up</strong><small>Yard address sent with your confirmation</small></span></label>
               <label class="opt"><input type="radio" name="method" value="Delivery" /><span><strong>Deliver to my site</strong><small>We'll quote delivery</small></span></label>
             </div>
             <div id="address-wrap" class="hidden" style="margin-top: 1rem;">
@@ -79,14 +79,14 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
 
           <input type="checkbox" id="botcheck" class="hidden" tabindex="-1" autocomplete="off" />
           <p id="form-error" class="hidden err"></p>
-          <button type="submit" id="submit" class="btn-primary" style="width: 100%;">Submit Rental Request</button>
-          <p class="fine">We respond to all requests within one business day. By sending, you agree we may contact you about this request. See our <a href="/privacy">Privacy Policy</a>.</p>
+          <button type="submit" id="submit" class="btn-primary" style="width: 100%;">Submit rental request</button>
+          <p class="fine">By sending, you agree we may contact you about this request. See our <a href="/privacy">Privacy Policy</a>.</p>
         </form>
       </div>
 
       <aside class="side">
         <div class="card info">
-          <h3>Contact Information</h3>
+          <h3>Contact information</h3>
           <dl>
             <div><dt>Email</dt><dd><a href={`mailto:${site.email}`}>{site.email}</a></dd></div>
             <div><dt>Phone</dt><dd><a href={site.phoneHref}>{site.phone}</a></dd></div>
@@ -95,231 +95,201 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
           </dl>
         </div>
         <div class="card info">
-          <h3>Service Area</h3>
+          <h3>Service area</h3>
           <p class="hint">We deliver to job sites across the state of Utah.</p>
           <div class="chips">{featuredCities.slice(0, 8).map((c) => <span class="chip">{c}</span>)}</div>
-          <a href="/service-areas" class="more">View full coverage map &rarr;</a>
+          <a href="/service-areas" class="more">View all service areas &rarr;</a>
         </div>
-        <div class="guarantee"><strong>One-business-day response</strong><span>We respond to every rental request within one business day.</span></div>
+        <div class="guarantee"><strong>One-business-day response</strong><span>We reply to every rental request within one business day.</span></div>
       </aside>
     </div>
   </section>
 </Layout>
 
 <style is:global>
-  .layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 3rem; align-items: start; }
-  .form-title { font-family: var(--font-heading); font-size: 1.1rem; letter-spacing: .02em; margin-bottom: 1.25rem; font-weight: 600; }
-  #form .block, #form .two { margin-bottom: 1.25rem; }
-  #form .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-  .picked { list-style: none; padding: 0; margin: 0 0 .75rem; }
-  .picked li { display: flex; align-items: center; justify-content: space-between; gap: .75rem; background: #fff; border: 1px solid var(--color-wr-border); border-left: 3px solid var(--color-wr-yellow); padding: .65rem .9rem; margin-bottom: .5rem; }
-  .picked .ctl { display: flex; align-items: center; gap: .4rem; }
-  .qty-btn { width: 1.9rem; height: 1.9rem; border: 1px solid var(--color-wr-border); background: #fff; font-size: 1.1rem; line-height: 1; }
-  .qty-btn:hover { border-color: #121212; }
-  .rm { margin-left: .5rem; font-size: .8rem; color: var(--color-wr-muted); }
+  /* Rows below are created by the script, so these rules are global. */
+  .picked { list-style: none; padding: 0; margin: 0 0 .75rem; display: grid; gap: .5rem; }
+  .picked li { display: flex; align-items: center; justify-content: space-between; gap: .75rem; background: #fff; border: 1px solid var(--color-wr-border); border-left: 4px solid var(--color-wr-accent); border-radius: 12px; padding: .7rem .95rem; }
+  .picked .name { font-weight: 600; }
+  .row-rate { display: block; font-weight: 400; color: var(--color-wr-muted); font-size: .8rem; }
+  .rm { font-size: .82rem; color: var(--color-wr-muted); }
   .rm:hover { color: #b3261e; text-decoration: underline; }
   .add-row { display: flex; gap: .6rem; }
-  .add-row .btn-outline { padding: .8rem 1.5rem; }
-  .hint { font-size: .9rem; color: var(--color-wr-muted); margin-bottom: .75rem; }
-  .hint a, .fine a, .info a.more { color: #B45300; text-decoration: underline; }
-  .duration { color: #B45300; font-weight: 600; min-height: 1.2rem; margin: -.5rem 0 1rem; font-size: .9rem; }
-  .row-rate { display: block; font-weight: 400; color: var(--color-wr-muted); font-size: .8rem; }
-  .est { background: #fff; border: 1px solid var(--color-wr-border); border-left: 4px solid var(--color-wr-yellow); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
-  .est-title { font-family: var(--font-heading); font-size: .8rem; letter-spacing: .15em; text-transform: uppercase; color: #B45300; margin-bottom: .5rem; }
+  .add-row .btn-outline { padding: .8rem 1.4rem; }
+  .duration { color: var(--color-wr-amber); font-weight: 600; min-height: 1.2rem; margin: -.5rem 0 1rem; font-size: .9rem; }
+  .lens { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: -.25rem 0 1rem; font-size: .85rem; color: var(--color-wr-muted); }
+  .lens button { font-size: .82rem; font-weight: 600; padding: .35rem .85rem; border: 1px solid var(--color-wr-border); background: #fff; border-radius: 999px; color: var(--color-wr-ink); }
+  .lens button:hover { border-color: var(--color-wr-ink); }
+  .est { background: #fff; border: 1px solid var(--color-wr-border); border-left: 4px solid var(--color-wr-accent); border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+  .est-title { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--color-wr-amber); margin-bottom: .5rem; }
   .est ul { list-style: none; padding: 0; margin: 0 0 .5rem; display: grid; gap: .3rem; font-size: .92rem; }
   .est li { display: flex; justify-content: space-between; gap: 1rem; }
   .est-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--color-wr-border); padding-top: .6rem; }
-  .est-total span { font-family: var(--font-heading); text-transform: uppercase; letter-spacing: .1em; }
-  .est-total strong { font-family: var(--font-heading); font-size: 1.9rem; line-height: 1; }
+  .est-total span { font-weight: 700; }
+  .est-total strong { font-family: var(--font-heading); font-weight: 800; font-size: 1.9rem; line-height: 1; }
   .est-note { font-size: .75rem; color: var(--color-wr-muted); margin-top: .5rem; line-height: 1.5; }
-  .err { color: #b3261e; font-size: .9rem; margin-bottom: 1rem; }
-  .warn { background: #FFF4E5; border: 1px solid #E8A33D; border-left: 4px solid #E8A33D; padding: .9rem 1.1rem; margin-bottom: 1.25rem; font-size: .92rem; color: #4a3200; }
+  .warn { background: #FFF4E5; border: 1px solid #E8A33D; border-left: 4px solid #E8A33D; border-radius: 12px; padding: .9rem 1.1rem; margin-bottom: 1.25rem; font-size: .92rem; color: #4a3200; }
   .warn ul { margin: .5rem 0 0 1.1rem; list-style: disc; display: grid; gap: .3rem; }
-  .opt { display: flex; gap: .75rem; align-items: flex-start; padding: .9rem 1rem; background: #fff; border: 1px solid var(--color-wr-border); cursor: pointer; }
-  .opt:has(input:checked) { border-color: var(--color-wr-yellow); box-shadow: inset 0 0 0 1px var(--color-wr-yellow); background: #FFF7EE; }
-  .opt input { accent-color: #121212; margin-top: .3rem; }
+  .opt { display: flex; gap: .75rem; align-items: flex-start; padding: .9rem 1rem; background: #fff; border: 1px solid var(--color-wr-border); border-radius: 12px; cursor: pointer; }
+  .opt:has(input:checked) { border-color: var(--color-wr-accent); box-shadow: inset 0 0 0 1px var(--color-wr-accent); background: #FFF7EE; }
+  .opt input { accent-color: var(--color-wr-ink); margin-top: .3rem; }
   .opt small { display: block; color: var(--color-wr-muted); }
-  .fine { text-align: center; font-size: .8rem; color: var(--color-wr-muted); margin-top: 1rem; }
-  .side { display: grid; gap: 1.25rem; }
-  .info { padding: 1.5rem; }
-  .info h3 { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem; }
-  .info dl { display: grid; gap: 1rem; }
-  .info dt { font-family: var(--font-heading); font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: #B45300; }
-  .info a { color: inherit; }
-  .info .chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
-  .guarantee { background: #E4E2D6; border: 1px solid #CFCCB9; padding: 1.25rem 1.5rem; }
-  .guarantee strong { display: block; font-family: var(--font-heading); text-transform: uppercase; letter-spacing: .03em; }
-  .guarantee span { font-size: .9rem; color: var(--color-wr-muted); }
-  .lens { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: -.25rem 0 1rem; font-size: .85rem; color: var(--color-wr-muted); }
-  .lens button { font-family: var(--font-heading); letter-spacing: .06em; text-transform: uppercase; font-size: .8rem; padding: .3rem .75rem; border: 1px solid var(--color-wr-border); background: #fff; }
-  .lens button:hover { border-color: #121212; }
-  .sum-title { font-family: var(--font-heading); font-size: .8rem; letter-spacing: .15em; text-transform: uppercase; color: #B45300; margin-top: 1.5rem; }
-  .sum { white-space: pre-wrap; font-family: var(--font-body); font-size: .9rem; background: var(--color-wr-mid); border: 1px solid var(--color-wr-border); padding: 1rem 1.25rem; margin-top: .5rem; line-height: 1.6; }
-  .success { background: #fff; border: 1px solid var(--color-wr-yellow); padding: 2.5rem; }
-  .success .big { font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; text-transform: uppercase; margin-bottom: .5rem; }
-  .success a:not(.btn-outline) { color: #B45300; text-decoration: underline; }
-  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
-  @media (max-width: 560px) { #form .two { grid-template-columns: 1fr; } }
+  .success { padding: 2.25rem; border-color: var(--color-wr-accent); }
+  .success .big { font-family: var(--font-heading); font-size: 2rem; font-weight: 800; margin-bottom: .5rem; }
+  .success a:not(.btn-outline) { color: var(--color-wr-amber); text-decoration: underline; }
+  .sum-title { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--color-wr-amber); margin-top: 1.5rem; }
+  .sum { white-space: pre-wrap; font-family: var(--font-body); font-size: .9rem; background: var(--color-wr-bg); border: 1px solid var(--color-wr-border); border-radius: 12px; padding: 1rem 1.25rem; margin-top: .5rem; line-height: 1.6; }
 </style>
 
 <script>
   import { loadAvailability, conflicts, nextFree, fmtRange, fmt, daysBetween, addDays, todayKey } from '../lib/availability';
+  import type { Availability } from '../lib/availability';
   import { getDates, setDates } from '../lib/dates';
-  import { estimate, money } from '../lib/pricing';
-  const KEY = 'wr-request-list';
-  const $ = (id) => document.getElementById(id);
-  const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
-  const write = (l) => { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch {} window.dispatchEvent(new CustomEvent('wr-list-changed')); };
+  import { estimate, money, type Rates } from '../lib/pricing';
+  import { getList, saveList, addToList } from '../lib/request-list';
 
-  const form = $('form'), success = $('success'), itemsEl = $('items'), picker = $('picker');
-  const start = $('start'), end = $('end');
-  const key = form.dataset.key, siteName = form.dataset.site;
-  let avail = { ok: false, bookings: {} };
-  const rates = JSON.parse(form.dataset.rates || '{}');
-  const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-  start.min = end.min = iso(new Date());
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const form = $<HTMLFormElement>('form'), success = $('success'), itemsEl = $('items'), picker = $<HTMLSelectElement>('picker');
+  const start = $<HTMLInputElement>('start'), end = $<HTMLInputElement>('end');
+  const key = form.dataset.key!, siteName = form.dataset.site!;
+  const rates: Record<string, Rates> = JSON.parse(form.dataset.rates || '{}');
+  let avail: Availability = { ok: false, bookings: {} };
+  const today = todayKey(); // Utah calendar day, same as the rest of the site
+  start.min = end.min = today;
 
   const render = () => {
-    const list = read();
+    const list = getList();
     $('items-empty').classList.toggle('hidden', list.length > 0);
     itemsEl.innerHTML = '';
-    list.forEach((e, i) => {
+    list.forEach((e) => {
       const li = document.createElement('li');
-      li.innerHTML = `<span style="font-weight:600"></span>
-        <span class="ctl">
-          <button type="button" class="qty-btn" data-act="dec" aria-label="Decrease">&minus;</button>
-          <span style="min-width:1.5rem;text-align:center"></span>
-          <button type="button" class="qty-btn" data-act="inc" aria-label="Increase">+</button>
-          <button type="button" class="rm" data-act="rm">Remove</button>
-        </span>`;
-      li.firstElementChild.textContent = e.name;
-      if (rates[e.slug]) { const r = document.createElement('small'); r.className = 'row-rate'; r.textContent = money(rates[e.slug][0]) + '/day'; li.firstElementChild.appendChild(r); }
-      li.querySelector('.ctl > span').textContent = e.qty;
-      li.addEventListener('click', (ev) => {
-        const act = ev.target.dataset && ev.target.dataset.act;
-        if (!act) return;
-        const l = read();
-        if (act === 'inc') l[i].qty += 1;
-        if (act === 'dec') l[i].qty = Math.max(1, l[i].qty - 1);
-        if (act === 'rm') l.splice(i, 1);
-        write(l); render(); checkConflicts(); renderEstimate();
-      });
+      const name = document.createElement('span'); name.className = 'name'; name.textContent = e.name;
+      if (rates[e.slug]) { const r = document.createElement('small'); r.className = 'row-rate'; r.textContent = money(rates[e.slug][0]) + '/day'; name.appendChild(r); }
+      const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'rm'; rm.textContent = 'Remove';
+      rm.addEventListener('click', () => { saveList(getList().filter((x) => x.slug !== e.slug)); refresh(); });
+      li.append(name, rm);
       itemsEl.appendChild(li);
     });
   };
 
   $('add-btn').addEventListener('click', () => {
     if (!picker.value) return;
-    const name = picker.options[picker.selectedIndex].text;
-    const l = read(); const hit = l.find((e) => e.slug === picker.value);
-    if (hit) hit.qty += 1; else l.push({ slug: picker.value, name, qty: 1 });
-    write(l); picker.value = ''; render(); checkConflicts(); renderEstimate();
+    addToList(picker.value, picker.options[picker.selectedIndex].text);
+    picker.value = ''; refresh();
   });
 
-  // Live price estimate from the listed rates (cheapest day/week/month mix), before delivery, fuel and tax.
   const rentalDays = () => (start.value && end.value && end.value >= start.value ? daysBetween(start.value, end.value) + 1 : 0);
+
+  // Live price estimate from the listed rates (cheapest day/week/month mix), before delivery, fuel and tax.
   const priceLines = () => {
     const days = rentalDays();
     if (!days) return null;
-    const lines = read().filter((e) => rates[e.slug]).map((e) => ({ name: e.name, qty: e.qty, cost: estimate(rates[e.slug], days) * e.qty }));
+    const lines = getList().filter((e) => rates[e.slug]).map((e) => ({ name: e.name, cost: estimate(rates[e.slug], days) }));
     return { days, lines, total: lines.reduce((n, l) => n + l.cost, 0) };
   };
   const renderEstimate = () => {
     const box = $('estimate'); const p = priceLines();
     if (!p || !p.lines.length) { box.classList.add('hidden'); box.innerHTML = ''; return; }
-    const rows = p.lines.map((l) => `<li><span></span><b>${money(l.cost)}</b></li>`).join('');
-    box.innerHTML = `<p class="est-title">Estimated total for ${p.days} day${p.days === 1 ? '' : 's'}</p><ul>${rows}</ul><p class="est-total"><span>Estimate</span><strong>${money(p.total)}</strong></p><p class="est-note">Based on our listed rates, before delivery, fuel and tax. Weekly and monthly rates are applied automatically. We confirm your final total before anything is booked.</p>`;
-    box.querySelectorAll('li span').forEach((el, i) => { el.textContent = p.lines[i].name + (p.lines[i].qty > 1 ? ' x' + p.lines[i].qty : ''); });
+    box.innerHTML = `<p class="est-title">Estimated total for ${p.days} day${p.days === 1 ? '' : 's'}</p><ul>${p.lines.map((l) => `<li><span></span><b>${money(l.cost)}</b></li>`).join('')}</ul><p class="est-total"><span>Estimate</span><strong>${money(p.total)}</strong></p><p class="est-note">Based on our listed rates, before delivery, fuel and tax. Weekly and monthly rates are applied automatically. We confirm your final total before anything is booked.</p>`;
+    box.querySelectorAll('li span').forEach((el, i) => { el.textContent = p.lines[i].name; });
     box.classList.remove('hidden');
   };
 
   // Equipment already booked for the chosen dates (from the bookings calendar). Returns true if there are none.
   const checkConflicts = () => {
     const box = $('avail-warn'); box.classList.add('hidden'); box.innerHTML = '';
-    if (!avail.ok || !start.value || !end.value || end.value < start.value) return true;
-    const len = daysBetween(start.value, end.value) + 1;
-    const lines = read().map((e) => {
-      const c = conflicts(avail, e.slug, start.value, end.value);
-      if (!c.length) return null;
-      return `<li><strong></strong> is booked ${c.map(fmtRange).join(', ')}. Next open for your ${len} day${len === 1 ? '' : 's'}: <strong>${fmt(nextFree(avail, e.slug, start.value, len))}</strong>.</li>`.replace('<strong></strong>', '<strong>' + e.name.replace(/[<>&]/g, '') + '</strong>');
-    }).filter(Boolean);
-    if (!lines.length) return true;
-    box.innerHTML = '<p><strong>Some equipment is already booked for those dates.</strong> Please pick different dates or remove it from your list.</p><ul>' + lines.join('') + '</ul>';
+    if (!avail.ok || !rentalDays()) return true;
+    const len = rentalDays();
+    const hits = getList().map((e) => ({ e, c: conflicts(avail, e.slug, start.value, end.value) })).filter((x) => x.c.length);
+    if (!hits.length) return true;
+    box.innerHTML = '<p><strong>Some equipment is already booked for those dates.</strong> Please pick different dates or remove it from your list.</p><ul></ul>';
+    const ul = box.querySelector('ul')!;
+    hits.forEach(({ e, c }) => {
+      const li = document.createElement('li');
+      const b = document.createElement('strong'); b.textContent = e.name;
+      li.append(b, ` is booked ${c.map(fmtRange).join(', ')}. Next open for your ${len} day${len === 1 ? '' : 's'}: ${fmt(nextFree(avail, e.slug, start.value, len))}.`);
+      ul.appendChild(li);
+    });
     box.classList.remove('hidden');
     return false;
   };
 
-  const dateCheck = () => {
+  // Shows the day count and any date problem. Returns true when the dates are usable.
+  const validateDates = () => {
     const err = $('date-error'), dur = $('duration');
     err.classList.add('hidden'); dur.textContent = '';
     if (start.value) end.min = start.value;
-    if (start.value && end.value) {
-      const days = Math.round((new Date(end.value) - new Date(start.value)) / 86400000) + 1;
-      if (days < 1) { err.textContent = 'Return date must be on or after the start date.'; err.classList.remove('hidden'); return false; }
-      dur.textContent = `${days} rental day${days === 1 ? '' : 's'}`;
-    }
-    renderEstimate();
-    return checkConflicts() || true;
+    let ok = true;
+    if (start.value && start.value < today) { err.textContent = 'Start date can’t be in the past.'; ok = false; }
+    else if (start.value && end.value && end.value < start.value) { err.textContent = 'Return date must be on or after the start date.'; ok = false; }
+    if (!ok) err.classList.remove('hidden');
+    else if (rentalDays()) dur.textContent = `${rentalDays()} rental day${rentalDays() === 1 ? '' : 's'}`;
+    return ok;
   };
-  const saveDates = () => { if (start.value && end.value && end.value >= start.value) setDates({ start: start.value, end: end.value }); };
-  start.addEventListener('change', () => { if (end.value && end.value < start.value) end.value = start.value; dateCheck(); saveDates(); });
-  end.addEventListener('change', () => { dateCheck(); saveDates(); });
+
+  const refresh = () => { render(); validateDates(); renderEstimate(); checkConflicts(); };
+  const saveDates = () => { if (validateDates() && rentalDays()) setDates({ start: start.value, end: end.value }); };
+  start.addEventListener('change', () => { if (end.value && end.value < start.value) end.value = start.value; refresh(); saveDates(); });
+  end.addEventListener('change', () => { refresh(); saveDates(); });
   $('lens').addEventListener('click', (ev) => {
-    const len = Number(ev.target.dataset && ev.target.dataset.len);
+    const len = Number((ev.target as HTMLElement).dataset?.len);
     if (!len) return;
-    if (!start.value) start.value = todayKey();
+    if (!start.value || start.value < today) start.value = today;
     end.value = addDays(start.value, len - 1);
-    dateCheck(); saveDates();
+    refresh(); saveDates();
   });
 
-  document.querySelectorAll('input[name="method"]').forEach((r) => r.addEventListener('change', () => {
-    $('address-wrap').classList.toggle('hidden', document.querySelector('input[name="method"]:checked').value !== 'Delivery');
+  document.querySelectorAll<HTMLInputElement>('input[name="method"]').forEach((r) => r.addEventListener('change', () => {
+    $('address-wrap').classList.toggle('hidden', document.querySelector<HTMLInputElement>('input[name="method"]:checked')!.value !== 'Delivery');
   }));
 
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const fe = $('form-error'); fe.classList.add('hidden');
-    const fail = (m) => { fe.textContent = m; fe.classList.remove('hidden'); };
-    const list = read();
-    const method = document.querySelector('input[name="method"]:checked').value;
+    const fail = (m: string) => { fe.textContent = m; fe.classList.remove('hidden'); };
+    const val = (id: string) => $<HTMLInputElement>(id).value.trim();
+    const list = getList();
+    const method = document.querySelector<HTMLInputElement>('input[name="method"]:checked')!.value;
     if (!list.length) return fail('Please add at least one piece of equipment.');
-    if (!start.value || !end.value || !dateCheck()) return fail('Please choose valid start and return dates.');
+    if (!start.value || !end.value || !validateDates()) return fail('Please choose valid start and return dates.');
     if (!checkConflicts()) return fail('Some equipment is booked for those dates. Please adjust your dates or list.');
-    if (method === 'Delivery' && !$('address').value.trim()) return fail('Please enter the job site address for delivery.');
-    if (!$('name').value.trim() || !$('phone').value.trim() || !$('email').value || !$('email').validity.valid) return fail('Please add your name, phone and a valid email.');
+    if (method === 'Delivery' && !val('address')) return fail('Please enter the job site address for delivery.');
+    const email = $<HTMLInputElement>('email');
+    if (!val('name') || !val('phone') || !email.value || !email.validity.valid) return fail('Please add your name, phone and a valid email.');
 
-    const days = Math.round((new Date(end.value) - new Date(start.value)) / 86400000) + 1;
+    const days = rentalDays();
+    const p = priceLines();
     const message = [
-      'EQUIPMENT REQUESTED', ...list.map((e) => `  - ${e.name} x${e.qty}`), '',
+      'EQUIPMENT REQUESTED', ...list.map((e) => `  - ${e.name}`), '',
       `DATES: ${start.value} to ${end.value} (${days} day${days === 1 ? '' : 's'})`,
-      ...(priceLines() ? [`ESTIMATE (listed rates, before delivery/fuel/tax): ${money(priceLines().total)}`, ...priceLines().lines.map((l) => `  - ${l.name} x${l.qty}: ${money(l.cost)}`)] : []),
-      `METHOD: ${method}${method === 'Delivery' ? ' to ' + $('address').value.trim() : ''}`, '',
-      `COMPANY: ${$('company').value.trim() || 'n/a'}`,
-      `NOTES: ${$('notes').value.trim() || 'none'}`,
+      ...(p ? [`ESTIMATE (listed rates, before delivery/fuel/tax): ${money(p.total)}`, ...p.lines.map((l) => `  - ${l.name}: ${money(l.cost)}`)] : []),
+      `METHOD: ${method}${method === 'Delivery' ? ' to ' + val('address') : ''}`, '',
+      `COMPANY: ${val('company') || 'n/a'}`,
+      `NOTES: ${val('notes') || 'none'}`,
     ].join('\n');
 
-    const btn = $('submit'); btn.disabled = true; btn.textContent = 'Sending...';
+    const btn = $<HTMLButtonElement>('submit'); btn.disabled = true; btn.textContent = 'Sending...';
     try {
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           access_key: key,
-          subject: `Rental request from ${$('name').value.trim()}${$('company').value.trim() ? ' (' + $('company').value.trim() + ')' : ''}`,
+          subject: `Rental request from ${val('name')}${val('company') ? ' (' + val('company') + ')' : ''}`,
           from_name: siteName,
-          name: $('name').value.trim(), email: $('email').value.trim(), phone: $('phone').value.trim(),
-          message, botcheck: $('botcheck').checked,
+          name: val('name'), email: val('email'), phone: val('phone'),
+          message, botcheck: $<HTMLInputElement>('botcheck').checked,
         }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.message || 'failed');
-      try { localStorage.setItem('wr-contact', JSON.stringify({ name: $('name').value.trim(), company: $('company').value.trim(), phone: $('phone').value.trim(), email: $('email').value.trim() })); } catch {}
+      try { localStorage.setItem('wr-contact', JSON.stringify({ name: val('name'), company: val('company'), phone: val('phone'), email: val('email') })); } catch {}
       $('sent-summary').textContent = message;
-      write([]); form.classList.add('hidden'); success.classList.remove('hidden');
+      saveList([]); form.classList.add('hidden'); success.classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       fail('Something went wrong sending your request. Please try again or call us.');
-      btn.disabled = false; btn.textContent = 'Submit Rental Request';
+      btn.disabled = false; btn.textContent = 'Submit rental request';
     }
   });
 
@@ -327,9 +297,8 @@ const rateMap = Object.fromEntries(items.map((i) => [i.slug, i.rates]));
   const sd = getDates(); if (sd) { start.value = sd.start; end.value = sd.end; }
   try {
     const c = JSON.parse(localStorage.getItem('wr-contact') || 'null');
-    if (c) { $('name').value = c.name || ''; $('company').value = c.company || ''; $('phone').value = c.phone || ''; $('email').value = c.email || ''; }
+    if (c) for (const k of ['name', 'company', 'phone', 'email']) $<HTMLInputElement>(k).value = c[k] || '';
   } catch {}
-  render();
-  dateCheck();
+  refresh();
   loadAvailability().then((a) => { avail = a; checkConflicts(); });
 </script>

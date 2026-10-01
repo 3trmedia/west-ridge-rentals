@@ -7,7 +7,8 @@ export const getDates = (): Dates | null => {
   try {
     const d = JSON.parse(localStorage.getItem(KEY) || 'null');
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Denver', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
-    return d && ok(d.start) && ok(d.end) && d.end >= d.start && d.end >= today ? d : null; // stale dates are dropped
+    if (!d || !ok(d.start) || !ok(d.end) || d.end < d.start || d.end < today) return null; // stale dates are dropped
+    return d.start < today ? { start: today, end: d.end } : d; // a partly-past range starts today
   } catch { return null; }
 };
 export const setDates = (d: Dates | null) => {

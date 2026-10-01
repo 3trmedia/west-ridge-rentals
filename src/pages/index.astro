@@ -1,9 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { categories, items, catName } from '../data/equipment';
+import { categories, items } from '../data/equipment';
+import { AVAILABILITY_ON } from '../lib/config';
 import { site, featuredCities } from '../data/site';
 import { money } from '../lib/pricing';
 import { itemImg, catImg, IMG } from '../lib/images';
+import { photo } from '../lib/photo';
 
 // Six picks for the "All" tab; each category tab shows its own items.
 const featuredSlugs = ['mini-excavator-35', 'dump-truck-10yd', 'skid-steer', 'excavator-20t', 'compact-track-loader', 'flatbed-trailer-20'];
@@ -17,16 +19,22 @@ const industries = [
   ['Landscapers', 'Compact loaders, grinders and trenchers that fit gates and finished yards.', IMG.landscapers, '/equipment/landscaping', 'Landscaping rentals'],
   ['Homeowners & property managers', 'Backyard projects, drainage and cleanup without buying the machine.', IMG.homeowners, '/equipment', 'Browse equipment'],
 ];
+const heroP = await photo(IMG.hero, 2000);
+const tileP = Object.fromEntries(await Promise.all(items.map(async (i) => [i.slug, await photo(itemImg(i.slug), 420)])));
+const catP = Object.fromEntries(await Promise.all(categories.map(async (c) => [c.slug, await photo(catImg(c.slug), 600)])));
+const aboutP = await photo(IMG.about, 700);
+const indP = await Promise.all(industries.map((x) => photo(x[2], 640)));
+const yardP = await photo(IMG.yard, 1600);
 ---
 <Layout title="West Ridge Rentals | Truck & Equipment Rentals in Utah" description="Rent dump trucks, excavators, skid steers and landscaping equipment across Utah. See rates, set your dates and request your rental online.">
   <!-- Hero -->
   <section class="hero">
-    <img class="hero-img" src={IMG.hero} alt="Yellow excavator digging against a bright blue sky" width="2000" height="1000" fetchpriority="high" decoding="async" />
+    <img class="hero-img" src={heroP.src} srcset={heroP.srcset} sizes="100vw" alt="Yellow excavator with its operator digging on a mountain job site" width={heroP.width} height={heroP.height} fetchpriority="high" decoding="async" />
     <div class="hero-shade"></div>
     <div class="container hero-inner">
       <p class="eyebrow eyebrow-light">Equipment rentals across Utah</p>
       <h1>Rent heavy equipment<br />for any job</h1>
-      <p class="sub">Trucks, excavators and landscaping equipment for contractors and homeowners. Clear rates, live availability and one simple request.</p>
+      <p class="sub">Trucks, excavators and landscaping equipment for contractors and homeowners. Clear rates{AVAILABILITY_ON ? ', live availability' : ''} and one simple request.</p>
       <div class="actions">
         <a href="/request" class="btn-primary">Request a rental</a>
         <a href="/equipment" class="btn-glass">Browse equipment</a>
@@ -42,13 +50,13 @@ const industries = [
         <form id="finder-form" class="date-form">
           <div><label class="label" for="f-start">Start date</label><input class="field" type="date" id="f-start" required /></div>
           <div><label class="label" for="f-end">Return date</label><input class="field" type="date" id="f-end" required /></div>
-          <button type="submit" class="btn-primary">Check availability &amp; pricing</button>
-          <p class="hint">See what's open and your estimated total. No payment now.</p>
+          <button type="submit" class="btn-primary">{AVAILABILITY_ON ? 'Check availability & pricing' : 'See pricing for my dates'}</button>
+          <p class="hint">{AVAILABILITY_ON ? "See what's open and your estimated total." : 'See your estimated total for those dates.'} No payment now.</p>
         </form>
       </div>
 
       <div class="finder-main">
-        <div class="tabs" role="tablist" aria-label="Equipment categories">
+        <div class="tabs" role="group" aria-label="Equipment categories">
           <button class="tab" data-tab="all" aria-pressed="true">Popular</button>
           {categories.map((c) => <button class="tab" data-tab={c.slug} aria-pressed="false">{c.name}</button>)}
           <a href="/equipment" class="viewall">View all equipment &rarr;</a>
@@ -56,7 +64,7 @@ const industries = [
         <div class="tiles">
           {items.map((i) => (
             <a href={`/equipment/${i.category}/${i.slug}`} class="tile" data-cat={i.category} data-featured={featuredSlugs.includes(i.slug) ? '1' : '0'}>
-              <span class="tile-img"><img src={itemImg(i.slug)} alt={`${i.name} for rent`} width="480" height="360" loading="lazy" decoding="async" /></span>
+              <span class="tile-img"><img src={tileP[i.slug].src} srcset={tileP[i.slug].srcset} sizes="(max-width: 640px) 45vw, 280px" alt={`${i.name} for rent`} width={tileP[i.slug].width} height={tileP[i.slug].height} loading="lazy" decoding="async" /></span>
               <span class="tile-name">{i.name}</span>
               <span class="tile-meta">From <strong>{money(i.rates[0])}</strong>/day</span>
             </a>
@@ -85,7 +93,7 @@ const industries = [
       <div class="cats">
         {categories.map((c) => (
           <a href={`/equipment/${c.slug}`} class="cat">
-            <img src={catImg(c.slug)} alt={`${c.name} rentals`} width="800" height="1000" loading="lazy" decoding="async" />
+            <img src={catP[c.slug].src} srcset={catP[c.slug].srcset} sizes="(max-width: 640px) 92vw, 300px" alt={`${c.name} rentals`} width={catP[c.slug].width} height={catP[c.slug].height} loading="lazy" decoding="async" />
             <span class="cat-shade"></span>
             <span class="cat-body"><strong>{c.name}</strong><em>{c.blurb}</em><b>Explore &rarr;</b></span>
           </a>
@@ -103,7 +111,9 @@ const industries = [
         <p class="lead" style="margin-bottom: 1rem;">Tell us what you need and when. Our team checks availability, confirms pricing and arranges delivery so you can stay on the job.</p>
         <ul class="check-list" style="margin: 1.5rem 0 2rem;">
           <li><span><strong>Rates you can see.</strong> Day, week and month pricing on every item.</span></li>
-          <li><span><strong>Live availability.</strong> Booked dates are blocked, so you only request what is open.</span></li>
+          {AVAILABILITY_ON
+            ? <li><span><strong>Live availability.</strong> Booked dates are blocked, so you only request what is open.</span></li>
+            : <li><span><strong>Flexible rentals.</strong> By the day, week or month, with pickup or delivery.</span></li>}
           <li><span><strong>Maintained equipment.</strong> Inspected between every rental.</span></li>
         </ul>
         <div class="pills">
@@ -112,7 +122,7 @@ const industries = [
           <span class="pill"><strong>1 day</strong><span>Typical reply</span></span>
         </div>
       </div>
-      <div class="about-photo"><img src={IMG.about} alt="Two crew members in hi-vis vests overlooking an excavation site" width="900" height="1100" loading="lazy" decoding="async" /></div>
+      <div class="about-photo"><img src={aboutP.src} srcset={aboutP.srcset} sizes="(max-width: 1000px) 92vw, 520px" alt="Two crew members in hi-vis vests overlooking an excavation site" width={aboutP.width} height={aboutP.height} loading="lazy" decoding="async" /></div>
     </div>
   </section>
 
@@ -125,9 +135,9 @@ const industries = [
         <p style="color: #b7bcc2; line-height: 1.7;">Whether you run a crew or you're tackling a weekend project, we have equipment sized for the work.</p>
       </div>
       <div class="industries">
-        {industries.map(([t, d, img, href, cta]) => (
+        {industries.map(([t, d, img, href, cta], n) => (
           <a href={href} class="ind">
-            <span class="ind-img"><img src={img} alt={t} width="1000" height="750" loading="lazy" decoding="async" /></span>
+            <span class="ind-img"><img src={indP[n].src} srcset={indP[n].srcset} sizes="(max-width: 1000px) 92vw, 380px" alt={t} width={indP[n].width} height={indP[n].height} loading="lazy" decoding="async" /></span>
             <strong>{t}</strong>
             <span>{d}</span>
             <b>{cta} &rarr;</b>
@@ -151,7 +161,7 @@ const industries = [
 
   <!-- CTA -->
   <section class="cta">
-    <img src={IMG.yard} alt="" width="2000" height="700" loading="lazy" decoding="async" />
+    <img src={yardP.src} srcset={yardP.srcset} sizes="100vw" alt="" width={yardP.width} height={yardP.height} loading="lazy" decoding="async" />
     <div class="cta-shade"></div>
     <div class="container cta-inner">
       <div>
@@ -188,7 +198,7 @@ const industries = [
   .tabs { display: flex; flex-wrap: wrap; gap: .4rem 1.35rem; align-items: center; margin-bottom: 1.25rem; }
   .tab { font-size: .92rem; font-weight: 600; color: var(--color-wr-muted); padding: .35rem 0; border-bottom: 2px solid transparent; transition: color .15s; }
   .tab:hover { color: var(--color-wr-ink); }
-  .tab[aria-pressed="true"] { color: var(--color-wr-ink); border-bottom-color: var(--color-wr-yellow); }
+  .tab[aria-pressed="true"] { color: var(--color-wr-ink); border-bottom-color: var(--color-wr-accent); }
   .viewall { margin-left: auto; font-size: .9rem; font-weight: 600; color: var(--color-wr-amber); text-decoration: none; }
   .viewall:hover { text-decoration: underline; }
   .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
@@ -202,7 +212,7 @@ const industries = [
   .tile-meta strong { color: var(--color-wr-ink); }
 
   /* Orange strip */
-  .strip { background: var(--color-wr-yellow); color: var(--color-wr-ink); }
+  .strip { background: var(--color-wr-accent); color: var(--color-wr-ink); }
   .strip-inner { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding-top: .95rem; padding-bottom: .95rem; font-weight: 600; font-size: .95rem; }
 
   /* Categories */
@@ -215,7 +225,7 @@ const industries = [
   .cat-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 1.4rem; display: grid; gap: .35rem; }
   .cat-body strong { font-family: var(--font-heading); font-size: 1.35rem; font-weight: 800; line-height: 1.1; }
   .cat-body em { font-style: normal; font-size: .85rem; color: #d3d6da; line-height: 1.45; }
-  .cat-body b { font-size: .85rem; color: var(--color-wr-yellow); margin-top: .3rem; }
+  .cat-body b { font-size: .85rem; color: var(--color-wr-accent); margin-top: .3rem; }
 
   /* About */
   .about { display: grid; grid-template-columns: 1.1fr .9fr; gap: 4.5rem; align-items: center; }
@@ -231,12 +241,12 @@ const industries = [
   .ind-img img { width: 100%; height: 100%; object-fit: cover; }
   .ind strong { color: #fff; font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; padding: 0 .7rem; }
   .ind > span:not(.ind-img) { padding: 0 .7rem; font-size: .92rem; line-height: 1.6; }
-  .ind b { padding: 0 .7rem; color: var(--color-wr-yellow); font-size: .88rem; margin-top: .25rem; }
+  .ind b { padding: 0 .7rem; color: var(--color-wr-accent); font-size: .88rem; margin-top: .25rem; }
 
   /* Steps */
   .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
   .step { background: #fff; border: 1px solid var(--color-wr-border); border-radius: 22px; padding: 2rem; }
-  .num { display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%; background: var(--color-wr-yellow); color: var(--color-wr-ink); font-family: var(--font-heading); font-weight: 800; font-size: 1.4rem; margin-bottom: 1.1rem; }
+  .num { display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%; background: var(--color-wr-accent); color: var(--color-wr-ink); font-family: var(--font-heading); font-weight: 800; font-size: 1.4rem; margin-bottom: 1.1rem; }
   .step h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: .4rem; }
   .step p { color: var(--color-wr-muted); line-height: 1.65; }
 
@@ -249,7 +259,7 @@ const industries = [
   .cta p { color: #c9cdd2; max-width: 30rem; line-height: 1.65; margin-bottom: 1.25rem; }
   .chips { display: flex; flex-wrap: wrap; gap: .5rem; max-width: 34rem; }
   .chip-d { font-size: .8rem; padding: .35rem .85rem; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; color: #e5e7ea; text-decoration: none; }
-  .chip-d.more { color: var(--color-wr-yellow); border-color: var(--color-wr-yellow); }
+  .chip-d.more { color: var(--color-wr-accent); border-color: var(--color-wr-accent); }
   .cta-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
 
   @media (max-width: 1000px) {

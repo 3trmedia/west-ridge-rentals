@@ -3,6 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import PageHero from '../components/PageHero.astro';
 import { items } from '../data/equipment';
 import { IMG, catImg } from '../lib/images';
+import { photo } from '../lib/photo';
+const aboutP = await photo(IMG.about, 700);
 const values = [
   ['Clear pricing', 'Day, week and month rates are posted on every item, with an estimate before you request.'],
   ['Maintained gear', 'Every machine is inspected between rentals so it shows up ready to work.'],
@@ -14,7 +16,7 @@ const values = [
 
   <section class="section section-white">
     <div class="container about">
-      <div class="photo"><img src={IMG.about} alt="Two crew members in hi-vis vests overlooking an excavation site" width="900" height="1100" loading="lazy" decoding="async" /></div>
+      <div class="photo"><img src={aboutP.src} srcset={aboutP.srcset} sizes="(max-width: 900px) 92vw, 480px" alt="Two crew members in hi-vis vests overlooking an excavation site" width={aboutP.width} height={aboutP.height} loading="lazy" decoding="async" /></div>
       <div>
         <p class="eyebrow">Our story</p>
         <h2 class="h2" style="margin-bottom: 1.25rem;">Built for people who work</h2>

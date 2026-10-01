@@ -2,12 +2,14 @@
 import { catName, type Item } from '../data/equipment';
 import { money } from '../lib/pricing';
 import { itemImg } from '../lib/images';
+import { photo } from '../lib/photo';
 const { item } = Astro.props as { item: Item };
 const href = `/equipment/${item.category}/${item.slug}`;
+const p = await photo(itemImg(item.slug), 480);
 ---
 <article class="item-card" data-item-card data-slug={item.slug} data-name={item.name.toLowerCase()} data-category={item.category} data-rates={item.rates.join(',')}>
   <a href={href} class="thumb" tabindex="-1" aria-label={item.name}>
-    <img src={itemImg(item.slug)} alt={`${item.name} available to rent in Utah`} width="600" height="450" loading="lazy" decoding="async" />
+    <img src={p.src} srcset={p.srcset} sizes="(max-width: 640px) 92vw, 320px" alt={`${item.name} available to rent in Utah`} width={p.width} height={p.height} loading="lazy" decoding="async" />
     <span class="tag">{catName(item.category)}</span>
     <span class="booked-pill" data-avail-slot data-slug={item.slug} hidden></span>
   </a>

@@ -1,9 +1,15 @@
 // Rental request list, stored in the browser (no account, no server).
-export type ListEntry = { slug: string; name: string; qty: number };
+// Each item is one machine: availability is tracked per machine, so there are no quantities.
+export type ListEntry = { slug: string; name: string };
 const KEY = 'wr-request-list';
 
 export const getList = (): ListEntry[] => {
-  try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || '[]');
+    const seen = new Set<string>();
+    // Older saved lists had a qty field and could repeat items; keep one of each.
+    return (Array.isArray(raw) ? raw : []).filter((e) => e && e.slug && !seen.has(e.slug) && seen.add(e.slug)).map((e) => ({ slug: e.slug, name: e.name }));
+  } catch { return []; }
 };
 export const saveList = (list: ListEntry[]) => {
   try { localStorage.setItem(KEY, JSON.stringify(list)); } catch {}
@@ -11,8 +17,6 @@ export const saveList = (list: ListEntry[]) => {
 };
 export const addToList = (slug: string, name: string) => {
   const list = getList();
-  const hit = list.find((e) => e.slug === slug);
-  if (hit) hit.qty += 1; else list.push({ slug, name, qty: 1 });
-  saveList(list);
+  if (!list.some((e) => e.slug === slug)) saveList([...list, { slug, name }]);
 };
-export const listCount = () => getList().reduce((n, e) => n + e.qty, 0);
+export const listCount = () => getList().length;

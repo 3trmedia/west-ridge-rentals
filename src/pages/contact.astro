@@ -4,11 +4,11 @@ import PageHero from '../components/PageHero.astro';
 import { site, featuredCities } from '../data/site';
 ---
 <Layout title="Contact | West Ridge Rentals" description="Questions about equipment, availability or delivery? Contact West Ridge Rentals in Utah.">
-  <PageHero eyebrow="Contact us" kicker="Questions about a rental?" title="Get in touch" intro={`Send us a message or give us a call. We're available ${site.hours.replace(' | ', ', ')}. Ready to rent? Skip ahead and request a rental.`} primary={['Request a Rental', '/request']} />
+  <PageHero eyebrow="Contact us" kicker="Questions about a rental?" title="Get in touch" intro={`Send us a message or give us a call. We're available ${site.hours.replace(' | ', ', ')}. Ready to rent? Skip ahead and request a rental.`} primary={['Request a rental', '/request']} />
 
   <section class="section section-gray">
-    <div class="container layout">
-      <form id="contact" novalidate>
+    <div class="container form-layout">
+      <form id="contact" class="form-card card" novalidate data-key={site.web3formsKey} data-site={site.name}>
         <h2 class="form-title">Send us a message</h2>
         <div class="two">
           <div><label class="label" for="c-name">Name *</label><input class="field" id="c-name" placeholder="John Smith" required autocomplete="name" /></div>
@@ -17,13 +17,13 @@ import { site, featuredCities } from '../data/site';
         <div class="block"><label class="label" for="c-email">Email address *</label><input class="field" id="c-email" type="email" placeholder="you@example.com" required autocomplete="email" /></div>
         <div class="block"><label class="label" for="c-msg">Message *</label><textarea class="field" id="c-msg" rows="6" placeholder="How can we help?" required></textarea></div>
         <input type="checkbox" id="c-bot" class="hidden" tabindex="-1" autocomplete="off" />
-        <p id="c-status" class="hidden" style="margin-bottom: 1rem; font-size: .95rem;"></p>
-        <button class="btn-primary" type="submit" id="c-submit" style="width: 100%;">Send Message</button>
+        <p id="c-status" class="hidden"></p>
+        <button class="btn-primary" type="submit" id="c-submit" style="width: 100%;">Send message</button>
       </form>
 
       <aside class="side">
         <div class="card info">
-          <h3>Contact Information</h3>
+          <h3>Contact information</h3>
           <dl>
             <div><dt>Email</dt><dd><a href={`mailto:${site.email}`}>{site.email}</a></dd></div>
             <div><dt>Phone</dt><dd><a href={site.phoneHref}>{site.phone}</a></dd></div>
@@ -32,41 +32,37 @@ import { site, featuredCities } from '../data/site';
           </dl>
         </div>
         <div class="card info">
-          <h3>Service Area</h3>
+          <h3>Service area</h3>
           <p class="hint">We deliver to job sites across the state of Utah.</p>
           <div class="chips">{featuredCities.slice(0, 8).map((c) => <span class="chip">{c}</span>)}</div>
-          <a href="/service-areas" class="more">View full coverage map &rarr;</a>
+          <a href="/service-areas" class="more">View all service areas &rarr;</a>
         </div>
       </aside>
     </div>
   </section>
 </Layout>
 
-<style is:global>
-  #contact .block, #contact .two { margin-bottom: 1.25rem; }
-  #contact .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-  @media (max-width: 560px) { #contact .two { grid-template-columns: 1fr; } }
-</style>
-
-<script define:vars={{ key: site.web3formsKey, siteName: site.name }}>
-  const $ = (id) => document.getElementById(id);
-  $('contact').addEventListener('submit', async (e) => {
+<script>
+  const $ = <T extends HTMLElement = HTMLInputElement>(id: string) => document.getElementById(id) as T;
+  const form = $<HTMLFormElement>('contact');
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const st = $('c-status'), btn = $('c-submit');
-    if (!$('c-name').value.trim() || !$('c-email').value || !$('c-email').validity.valid || !$('c-msg').value.trim()) {
-      st.textContent = 'Please add your name, a valid email and a message.'; st.className = 'err'; return;
+    const st = $<HTMLParagraphElement>('c-status'), btn = $<HTMLButtonElement>('c-submit');
+    const show = (msg: string, cls: string) => { st.textContent = msg; st.className = cls; };
+    if (!$('c-name').value.trim() || !$('c-email').value || !$('c-email').validity.valid || !$<HTMLTextAreaElement>('c-msg').value.trim()) {
+      show('Please add your name, a valid email and a message.', 'err'); return;
     }
     btn.disabled = true; btn.textContent = 'Sending...'; st.className = 'hidden';
     try {
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ access_key: key, subject: `Website message from ${$('c-name').value.trim()}`, from_name: siteName,
-          name: $('c-name').value.trim(), email: $('c-email').value.trim(), phone: $('c-phone').value.trim(), message: $('c-msg').value.trim(), botcheck: $('c-bot').checked }),
+        body: JSON.stringify({ access_key: form.dataset.key, subject: `Website message from ${$('c-name').value.trim()}`, from_name: form.dataset.site,
+          name: $('c-name').value.trim(), email: $('c-email').value.trim(), phone: $('c-phone').value.trim(), message: $<HTMLTextAreaElement>('c-msg').value.trim(), botcheck: $('c-bot').checked }),
       });
       const data = await res.json();
       if (!data.success) throw new Error();
-      $('contact').reset(); st.textContent = "Thanks! We'll be in touch within one business day."; st.className = ''; st.style.color = '#B45300';
-    } catch { st.textContent = 'Something went wrong. Please try again or call us.'; st.className = 'err'; st.style.color = ''; }
-    btn.disabled = false; btn.textContent = 'Send Message';
+      form.reset(); show("Thanks! We'll be in touch within one business day.", 'ok');
+    } catch { show('Something went wrong. Please try again or call us.', 'err'); }
+    btn.disabled = false; btn.textContent = 'Send message';
   });
 </script>
