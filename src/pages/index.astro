@@ -212,7 +212,7 @@ const yardP = await photo(IMG.yard, 1600);
   .tile-meta strong { color: var(--color-wr-ink); }
 
   /* Orange strip */
-  .strip { background: var(--color-wr-accent); color: var(--color-wr-ink); }
+  .strip { background: var(--color-wr-accent); color: #fff; }
   .strip-inner { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding-top: .95rem; padding-bottom: .95rem; font-weight: 600; font-size: .95rem; }
 
   /* Categories */
@@ -225,7 +225,7 @@ const yardP = await photo(IMG.yard, 1600);
   .cat-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 1.4rem; display: grid; gap: .35rem; }
   .cat-body strong { font-family: var(--font-heading); font-size: 1.35rem; font-weight: 800; line-height: 1.1; }
   .cat-body em { font-style: normal; font-size: .85rem; color: #d3d6da; line-height: 1.45; }
-  .cat-body b { font-size: .85rem; color: var(--color-wr-accent); margin-top: .3rem; }
+  .cat-body b { font-size: .85rem; color: var(--color-wr-accent-light); margin-top: .3rem; }
 
   /* About */
   .about { display: grid; grid-template-columns: 1.1fr .9fr; gap: 4.5rem; align-items: center; }
@@ -241,12 +241,12 @@ const yardP = await photo(IMG.yard, 1600);
   .ind-img img { width: 100%; height: 100%; object-fit: cover; }
   .ind strong { color: #fff; font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; padding: 0 .7rem; }
   .ind > span:not(.ind-img) { padding: 0 .7rem; font-size: .92rem; line-height: 1.6; }
-  .ind b { padding: 0 .7rem; color: var(--color-wr-accent); font-size: .88rem; margin-top: .25rem; }
+  .ind b { padding: 0 .7rem; color: var(--color-wr-accent-light); font-size: .88rem; margin-top: .25rem; }
 
   /* Steps */
   .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
   .step { background: #fff; border: 1px solid var(--color-wr-border); border-radius: 22px; padding: 2rem; }
-  .num { display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%; background: var(--color-wr-accent); color: var(--color-wr-ink); font-family: var(--font-heading); font-weight: 800; font-size: 1.4rem; margin-bottom: 1.1rem; }
+  .num { display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%; background: var(--color-wr-accent); color: #fff; font-family: var(--font-heading); font-weight: 800; font-size: 1.4rem; margin-bottom: 1.1rem; }
   .step h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: .4rem; }
   .step p { color: var(--color-wr-muted); line-height: 1.65; }
 
@@ -259,7 +259,7 @@ const yardP = await photo(IMG.yard, 1600);
   .cta p { color: #c9cdd2; max-width: 30rem; line-height: 1.65; margin-bottom: 1.25rem; }
   .chips { display: flex; flex-wrap: wrap; gap: .5rem; max-width: 34rem; }
   .chip-d { font-size: .8rem; padding: .35rem .85rem; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; color: #e5e7ea; text-decoration: none; }
-  .chip-d.more { color: var(--color-wr-accent); border-color: var(--color-wr-accent); }
+  .chip-d.more { color: var(--color-wr-accent-light); border-color: var(--color-wr-accent-light); }
   .cta-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
 
   @media (max-width: 1000px) {

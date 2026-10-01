@@ -86,10 +86,6 @@ export const items: Item[] = [
 
 export const catName = (slug: string) => categories.find((c) => c.slug === slug)?.name ?? slug;
 
-// Line icon used in the logo mark.
-export const icons: Record<string, string> = {
-  excavator: '<path d="M3 18h12M5 18v-4h7v4M8 14V9l5-5 4 3-4 5M13 12l5 3-2 3"/><circle cx="6" cy="19.5" r="1"/>',
-};
 
 // Short name typed as the calendar event title to block an item (see /bookings-guide).
 export const bookingKeys = (i: Item) => [i.book, i.name, i.slug];
